@@ -53,30 +53,64 @@ export function normalizeAddress(value, domain) {
 }
 
 export function extractCode(subject, text) {
-  const input = `${subject}\n${text}`
-    .slice(0, 12000)
+  const source = `${subject}\n${text}`;
+  const input = source.slice(0, 12000)
     .replace(/(?:https?:\/\/|www\.)[^\s<>]+/gi, (url) => " ".repeat(url.length))
     .replace(/\b(\d{3})[ \u00a0-](\d{3})\b/g, "$1$2");
   const labels = input.matchAll(
-    /验证码|校验码|确认码|动态码|验证代码|一次性密码|(?:your|verification|security|confirmation|authentication|login|sign[ -]?in|one[ -]?time)[ -]?(?:code|password)|\b(?:OTP|passcode)\b/gi,
+    /验证码|校验码|确认码|动态码|验证代码|一次性密码|(?:your|email|verification|security|confirmation|authentication|activation|recovery|access|login|sign[ -]?in|one[ -]?time)[ -]?(?:code|password)|\b(?:OTP|passcode)\b/gi,
   );
   const candidates = new Set();
   // 只接受紧邻验证提示的码，避免把链接编号、年份或客服编号当成验证码。
   for (const label of labels) {
-    const after = input
-      .slice(label.index + label[0].length, label.index + label[0].length + 120)
-      .match(
-        /^[\s:：=。.“"'（(【-]*(?:(?:is|为|是|to (?:confirm|verify) your (?:email(?: address)?|account)|(?:确认|验证)(?:您|你)的(?:邮箱|电子邮件)(?:地址)?)\s*[\s:：=。.“"'（(【-]*)?([a-z0-9]{4,8})\b/i,
-      );
-    const before = input
-      .slice(Math.max(0, label.index - 120), label.index)
-      .match(
-        /\b([a-z0-9]{4,8})(?:\s+is\s+(?:your|the)\s+(?:[a-z]+\s+){0,3})?[\s”"'）)】-]*$/i,
-      );
-    for (const match of [after, before])
-      if (match && /\d/.test(match[1])) candidates.add(match[1]);
+    const tail = input.slice(label.index + label[0].length);
+    const head = input.slice(0, label.index);
+    const after = tail.match(
+      /^[\s:：=。.“"'（(【-]*(?:(?:is|为|是|to (?:confirm|verify) your (?:email(?: address)?|account)|(?:确认|验证)(?:您|你)的(?:邮箱|电子邮件)(?:地址)?)\s*[\s:：=。.“"'（(【-]*)?([a-z0-9]+(?:[-_][a-z0-9]+)*)(?![a-z0-9_-])/i,
+    );
+    const before = head.match(
+      /(?:^|[^a-z0-9_-])([a-z0-9]+(?:[-_][a-z0-9]+)*)(\s+is\s+(?:(?:your|the)\s+)?(?:[a-z]+\s+){0,3}|\s*(?:是|为)(?:您|你)?的?\s*)?[\s”"'）)】:-]*$/i,
+    );
+    for (const [match, preceding] of [[after, false], [before, true]]) {
+      if (!match) continue;
+      if (!preceding && source.length > 12000 && match[0].length === tail.length) continue;
+      const code = match[1];
+      if (!/\d/.test(code)) {
+        // 字母码依靠明确句式或独立的码值，避免把操作提示当成验证码。
+        if (preceding) {
+          if (!match[2] && (!/\r?\n[\t ]*$/.test(head) || head.trim().split(/\r?\n/).at(-1).trim() !== code)) continue;
+        } else if (!/^[\t ”"'）)】]*(?:[。！？；，、]|[,.!?;](?:\s|$)|\r?\n|$)/.test(tail.slice(match[0].length))) continue;
+      }
+      candidates.add(code);
+    }
   }
   return candidates.size === 1 ? [...candidates][0] : "";
+}
+
+export async function extractLinks(html, text) {
+  const found = [], links = new Map();
+  let current;
+  if (html) await new HTMLRewriter().on("a[href]", {
+    element(element) {
+      const link = { url: decodeHTMLAttribute(element.getAttribute("href") || ""), text: "" };
+      found.push(link);
+      current = link;
+      element.onEndTag(() => { if (current === link) current = null; });
+    },
+    text(chunk) { if (current) current.text += chunk.text; },
+  }).transform(new Response(html)).text();
+  for (const match of String(text || "").matchAll(/https?:\/\/[^\s<>"'\u3000]+/gi))
+    found.push({ url: match[0].replace(/[.,;!?，。；！？、)）\]}】]+$/g, ""), text: "" });
+  for (const link of found) {
+    try {
+      const url = new URL(link.url);
+      if (url.protocol !== "https:" && url.protocol !== "http:") continue;
+      const label = decodeHTML(link.text).replace(/\s+/g, " ").trim();
+      if (!links.has(url.href) || label && !links.get(url.href).text)
+        links.set(url.href, { url: url.href, text: label });
+    } catch { /* 非绝对网页链接不作为验证入口。 */ }
+  }
+  return [...links.values()];
 }
 
 async function readHtml(html) {
@@ -94,10 +128,10 @@ async function readHtml(html) {
     })
     .on("br,hr,p,div,tr,td,th,li,h1,h2,h3,section,blockquote", {
       element(element) {
-        text += " ";
+        text += "\n";
         if (!["br", "hr"].includes(element.tagName))
           element.onEndTag(() => {
-            text += " ";
+            text += "\n";
           });
       },
     })
@@ -121,7 +155,7 @@ async function readHtml(html) {
     })
     .transform(new Response(html))
     .text();
-  return { text: decodeHTML(text).replace(/\s+/g, " ").trim(), images };
+  return { text: decodeHTML(text).replace(/[^\S\r\n]+/g, " ").replace(/ *[\r\n]+ */g, "\n").trim(), images };
 }
 
 async function readRaw(message) {

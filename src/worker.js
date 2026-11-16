@@ -5,6 +5,7 @@ import {
   normalizeAddress,
   RETENTION_MS,
   LIMITS,
+  extractLinks,
 } from "./mail.js";
 
 const uuid = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
@@ -199,6 +200,7 @@ async function api(request, env) {
         ...image,
         url: `/api/messages/${id}/images/${image.id}`,
       }));
+      message.links = await extractLinks(message.html, message.text);
       return json(message);
     }
     if (!imageId && request.method === "DELETE") {

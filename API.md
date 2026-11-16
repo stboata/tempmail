@@ -14,7 +14,7 @@ Authorization: Bearer 你的访问密钥
 | --- | --- |
 | `GET /api/status` | 验证密钥，返回 `domain`、`serverTime`、`retentionMs` 和 `limits` |
 | `GET /api/messages` | 最新邮件优先的列表；参数见下表 |
-| `GET /api/messages/{id}` | 详情，增加 `text`、`html`、`images`、`omittedImages` |
+| `GET /api/messages/{id}` | 详情，增加 `text`、`html`、`links`、`images`、`omittedImages` |
 | `GET /api/messages/{id}/images/{imageId}` | 带相同鉴权头取得图片二进制；受所属邮件的有效期限制 |
 | `DELETE /api/messages/{id}` | 删除指定邮件及内嵌图片，成功返回 **204、无正文**；重复删除也成功 |
 
@@ -51,7 +51,9 @@ GET /api/messages?address=task7%40example.com&since=1794750000000&limit=30
 }
 ```
 
-空列表是 `200` 和 `messages:[]`。`code:""` 表示有邮件、没有可靠提取结果，可查看正文或验证链接。`status:"too_large"` 表示仅保存了基本记录，正文未保存。没有总数统计请求；界面上的数量是当前已加载数量。
+空列表是 `200` 和 `messages:[]`。`code` 支持数字、纯字母和字母数字组合，不限定为 4～8 位；多个候选冲突或无法可靠识别时返回 `""`。`status:"too_large"` 表示仅保存了基本记录，正文未保存。没有总数统计请求；界面上的数量是当前已加载数量。
+
+详情的 `links` 返回邮件中的网页链接，例如 `[{"url":"https://example.net/verify?token=...","text":"验证邮箱"}]`；纯文本链接的 `text` 为空。验证码为空时，程序可按目标网站域名、链接文字和任务上下文选择验证链接。这里也可能包含退订等链接，服务不会代为点击。
 
 按指定邮箱取信应使用 `address`，不要把邮箱前缀作为 `q`。`address` 精确匹配并使用地址索引；`q` 需要检查邮件内容，可能读取更多行。网页的“查邮箱”会自动补齐当前域名并只传 `address`；“搜邮件”才传 `q`，选定邮箱后可组合两者。
 
@@ -63,7 +65,7 @@ GET /api/messages?address=task7%40example.com&since=1794750000000&limit=30
 2. 每个独立任务生成不同的随机前缀。**在触发目标网站发信之前**，保存本次 `since=serverTime` 和完整邮箱地址；中断恢复时沿用它们。
 3. 到目标网站提交邮箱、触发验证，然后查询 `/api/messages?address=...&since=...`。
 4. 无邮件时等待后再查询。建议从 3 秒逐步退到 10 秒，一次等待最多 2 分钟；这是客户端建议，可按任务调整。超时后报告尚未收到，是否重发由目标网站流程决定，不能无限循环。
-5. 按发件人、主题和任务上下文选择邮件；需要时翻页或读详情。验证码未提取到、邮件使用链接时，从详情继续处理。
+5. 按发件人、主题和任务上下文选择邮件；需要时翻页或读详情。邮件使用链接验证时，从详情的 `links` 选择对应入口；未可靠提码时仍可读取正文。
 6. **目标网站确认验证成功后**，才删除实际使用的邮件。失败时保留，避免删除后无法重试。删除失败只重试删除，不重新执行已成功的注册。
 
 可用以下 JavaScript 写请求；Node.js 使用内置 `fetch`，不需额外安装依赖：

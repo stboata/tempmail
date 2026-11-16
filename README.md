@@ -36,7 +36,7 @@
 | 单封原始邮件 / 正文 | 2 MiB / 512 KiB；超限只留基本记录 |
 | 正文内嵌图片 | PNG、JPEG、GIF、WebP；每封最多 8 张，单张 256 KiB，合计 512 KiB |
 
-外部图片按需显示，普通附件不保存。验证码未识别时可查看原邮件。免费额度以 [Workers](https://developers.cloudflare.com/workers/platform/limits/) 和 [D1](https://developers.cloudflare.com/d1/platform/pricing/) 的实际用量为准。
+支持数字、纯字母及组合验证码，也可打开邮件中的验证链接。外部图片按需显示，普通附件不保存。免费额度以 [Workers](https://developers.cloudflare.com/workers/platform/limits/) 和 [D1](https://developers.cloudflare.com/d1/platform/pricing/) 的实际用量为准。
 
 ## 本地运行
 

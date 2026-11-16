@@ -75,9 +75,8 @@
     .topbar .round-button { background:transparent; color:var(--muted) }
     .topbar .round-button:hover { background:var(--fill); color:var(--ink) }
     .topbar-actions { display:flex; align-items:center; gap:10px }
-    .api-link { display:inline-flex; align-items:center; justify-content:center; min-width:44px; min-height:43px; border-radius:99px; padding:0 13px; color:var(--muted); font-size:13px; font-weight:600; text-decoration:none }
+    .api-link { display:inline-flex; align-items:center; justify-content:center; width:52px; min-height:43px; border-radius:99px; padding:0; color:var(--muted); font-size:13px; font-weight:600; text-decoration:none }
     .api-link:hover { background:var(--fill); color:var(--ink) }
-    .api-link[aria-pressed="true"] { background:var(--fill); color:var(--ink) }
     .workspace { max-width:1040px; margin:auto; padding:20px 30px 65px }
     .page-views { display:grid; isolation:isolate; min-height:calc(100svh - 177px) }
     .content-view { grid-area:1/1; min-width:0; align-self:start; background:var(--bg) }
@@ -152,21 +151,22 @@
     .is-stale { opacity:.7 }
     dialog { border:0; border-radius:25px; color:var(--ink); background:white; padding:0; width:min(760px,calc(100vw - 32px)); max-height:calc(100svh - 48px); box-shadow:0 28px 100px #0002 }
     dialog::backdrop { background:#00000040; backdrop-filter:blur(7px) }
-    .reader-top { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:20px 27px 0; color:var(--muted); font-size:13px }
-    .reader-top .round-button { width:44px; height:44px; background:var(--hover) }
-    .reader-content { padding:17px 28px 27px }
+    #readerView { position:relative }
+    .reader-close { position:absolute; top:20px; right:20px; width:44px; height:44px; background:var(--hover) }
+    .reader-content { padding:25px 28px 27px }
     .reader-label { display:block; color:var(--muted); font-size:12px; font-weight:500; line-height:1.6 }
-    .reader-title { font-size:23px; font-weight:600; line-height:1.6; margin:4px 0 20px; overflow-wrap:anywhere }
+    .reader-title { font-size:23px; font-weight:600; line-height:1.6; margin:4px 0 20px; padding-right:52px; overflow-wrap:anywhere }
     .reader-meta { font-size:14px; color:var(--muted); line-height:1.8; overflow-wrap:anywhere; margin:0 }
     dl.reader-meta { display:grid; gap:9px }
     .reader-meta>div { display:grid; grid-template-columns:64px minmax(0,1fr); gap:12px }
     .reader-meta dt { font-size:12px; padding-top:2px }
     .reader-meta dd { margin:0; min-width:0; color:var(--ink) }
-    .reader-meta strong { font-weight:600; margin-right:7px }
-    .reader-email { color:var(--muted); font:12px/1.8 var(--mono) }
-    .reader-recipient { font-family:var(--mono); font-size:12px }
-    .reader-code { margin:22px 0; display:flex; justify-content:space-between; align-items:center; gap:15px; background:var(--hover); border-radius:17px; padding:18px 20px }
-    .reader-code>div { min-width:0 }
+    .reader-meta strong { display:block; font-weight:600; margin-bottom:2px }
+    .reader-address { display:block; max-width:100%; padding:0; background:transparent; text-align:left; color:var(--muted); font:12px/1.8 var(--mono); overflow-wrap:anywhere }
+    button.reader-address:hover { color:var(--ink); text-decoration:underline; text-underline-offset:3px }
+    .reader-code { margin:22px 0; display:flex; width:100%; justify-content:space-between; align-items:center; gap:15px; background:var(--hover); border-radius:17px; padding:18px 20px; text-align:left; transition:background .15s }
+    .reader-code:hover { background:var(--fill) }
+    .reader-code>span:first-child { min-width:0 }
     .reader-code code { display:block; font:600 26px/1.5 var(--mono); letter-spacing:2px; overflow-wrap:anywhere; margin-top:3px }
     .reader-code .round-button { width:44px; height:44px; background:var(--fill) }
     .reader-code .round-button svg { width:15px; height:15px }
@@ -239,7 +239,7 @@
       .reader-panel { display:block; position:sticky; top:24px; min-width:0; min-height:520px; max-height:calc(100svh - 48px); overflow:auto; background:var(--surface); border-radius:24px }
       .reader-empty { display:grid }
       #readerDialog { position:static; margin:0; width:100%; max-height:none; box-shadow:none; border-radius:0; overflow:visible }
-      .reader-top { padding:18px 24px 0 }.reader-content { padding:16px 24px 25px }
+      .reader-close { top:18px; right:24px }.reader-content { padding:24px 24px 25px }
       .reader-title { font-size:22px }
       .mail-frame { height:clamp(280px,calc(100svh - 340px),640px) }
       .plain-body { max-height:calc(100svh - 340px) }
@@ -269,7 +269,7 @@
       .message-content { grid-column:1; grid-row:2; padding-inline-start:var(--recipient-inset) }.subject { font-size:15px; line-height:1.65 }.snippet { display:none }
       .code-copy { column-gap:6px; width:auto; max-width:132px }.code-copy code { font-size:15px }.read-mail svg { width:16px; height:16px }
       .message-banner { padding:12px 14px; font-size:13px }.message-banner button { font-size:13px }
-      .reader-top { padding:16px 19px 0; font-size:12px }.reader-content { padding:15px 20px 23px }.reader-title { font-size:21px }
+      .reader-close { top:16px; right:16px }.reader-content { padding:23px 20px }.reader-title { font-size:21px }
       .reader-code { padding:15px 17px; margin:19px 0 }.reader-code code { font-size:23px; letter-spacing:1px }.reader-tools { margin-top:20px }
       .api-sheet { padding:23px 19px; border-radius:22px }.api-heading { margin-bottom:20px }.api-heading h1 { font-size:23px }.api-heading .pill { font-size:13px; padding:9px 13px }
       .api-connection { padding:16px 14px }.api-connection>div { grid-template-columns:1fr; gap:3px }
@@ -334,7 +334,7 @@
     <section class="app" id="app" hidden aria-label="临时邮箱">
       <header class="topbar">
         <a class="brand" href="#" id="homeButton" aria-label="临时邮箱"><svg class="mail-logo" aria-hidden="true"><use href="#mail-wordmark"/></svg><span>临时邮箱</span></a>
-        <nav class="topbar-actions" aria-label="邮箱工具"><button class="api-link" id="inboxButton" type="button" aria-pressed="true" aria-controls="inboxPage">邮箱</button><button class="api-link" id="apiButton" type="button" aria-pressed="false" aria-controls="apiPage">API</button><button class="round-button" id="logoutButton" type="button" aria-label="退出邮箱" title="退出"><svg aria-hidden="true"><use href="#logout"/></svg></button></nav>
+        <nav class="topbar-actions" aria-label="邮箱工具"><button class="api-link" id="pageButton" type="button" aria-controls="apiPage">API</button><button class="round-button" id="logoutButton" type="button" aria-label="退出邮箱" title="退出"><svg aria-hidden="true"><use href="#logout"/></svg></button></nav>
       </header>
       <div class="workspace">
         <div class="page-views" id="pageViews">
@@ -369,7 +369,7 @@
         </section>
         <aside class="reader-panel" id="readerPanel" aria-label="邮件阅读区">
           <div class="reader-empty" id="readerEmpty"><svg aria-hidden="true"><use href="#mail"/></svg><p id="readerPrompt">选择一封邮件</p></div>
-          <dialog id="readerDialog" aria-labelledby="readerTitle"><div id="readerView" hidden><div class="reader-top"><span>邮件</span><button class="round-button" type="button" id="closeReaderButton" aria-label="关闭邮件"><svg aria-hidden="true"><use href="#close"/></svg></button></div><div class="reader-content" id="readerContent"></div></div></dialog>
+          <dialog id="readerDialog" aria-labelledby="readerTitle"><div id="readerView" hidden><button class="round-button reader-close" type="button" id="closeReaderButton" aria-label="关闭邮件"><svg aria-hidden="true"><use href="#close"/></svg></button><div class="reader-content" id="readerContent"></div></div></dialog>
         </aside>
         </div>
         </div>
@@ -493,10 +493,11 @@
     function finishRefresh(){if(!state.loading)$('refreshButton').setAttribute('aria-busy','false');}
     function stopPolling(){clearTimeout(state.pollTimer);state.pollTimer=0;state.polling=false;}
     function cancelList(){state.listSequence++;state.listController?.abort();state.listController=null;loading(false);$('loadMoreButton').disabled=false;}
+    function updatePageButton(){const target=state.page==='inbox'?'api':'inbox';$('pageButton').textContent=target==='api'?'API':'邮箱';$('pageButton').setAttribute('aria-controls',target+'Page');}
     async function switchPage(page,animate=true){
       if(state.page===page)return;const sequence=++pageSequence;pageAnimation?.cancel();
-      const previous=$(state.page+'Page'),next=$(page+'Page');state.page=page;stopPolling();
-      for(const name of ['inbox','api']){const element=$(name+'Page');element.hidden=element!==previous;element.inert=element!==next;element.style.zIndex='';$(name+'Button').setAttribute('aria-pressed',String(name===page));}
+      const previous=$(state.page+'Page'),next=$(page+'Page');state.page=page;updatePageButton();stopPolling();
+      for(const name of ['inbox','api']){const element=$(name+'Page');element.hidden=element!==previous;element.inert=element!==next;element.style.zIndex='';}
       next.hidden=false;next.style.zIndex='1';layoutReader();
       if(animate&&!reducedMotion.matches){pageAnimation=next.animate([{clipPath:'circle(0% at 100% 0)'},{clipPath:'circle(150% at 100% 0)'}],{duration:560,easing:'cubic-bezier(.76,0,.24,1)',fill:'both'});await pageAnimation.finished.catch(()=>{});}
       if(sequence!==pageSequence)return;previous.hidden=true;next.style.zIndex='';pageAnimation?.cancel();pageAnimation=null;if(page==='inbox')startPolling();
@@ -514,7 +515,7 @@
     function showReader(){ $('readerView').hidden=false;$('readerEmpty').hidden=true;layoutReader(); }
     function closeReader(){state.readerSequence++;state.readerController?.abort();state.readerController=null;state.selectedId='';state.detail=null;state.remoteImages=false;if($('readerDialog').open)$('readerDialog').close();$('readerView').hidden=true;$('readerEmpty').hidden=false;$('readerPrompt').textContent='选择一封邮件';$('readerContent').replaceChildren();$('mailList').querySelector('.is-selected')?.classList.remove('is-selected');}
     function logout(message=''){
-      ++state.epoch;++pageSequence;pageAnimation?.cancel();pageAnimation=null;clearInterval(state.expiryTimer);state.connectController?.abort();stopPolling();cancelList();closeReader();clearWaits();if($('deleteDialog').open)$('deleteDialog').close();Object.assign(state,{key:'',page:'inbox',rows:[],query:'',addressFilter:'',searchMode:'address',current:'',cursor:null,deleteTarget:null,offset:0});for(const name of ['inbox','api']){const selected=name==='inbox';$(name+'Page').hidden=!selected;$(name+'Page').inert=!selected;$(name+'Page').style.zIndex='';$(name+'Button').setAttribute('aria-pressed',String(selected));}$('app').hidden=true;$('login').hidden=false;$('accessKey').value='';$('accessKey').type='password';$('showKey').setAttribute('aria-pressed','false');$('showKey').setAttribute('aria-label','显示密钥');validating(false);$('searchInput').value='';$('mailList').replaceChildren();$('deleteSubject').textContent='';updateAddress();updateSearch();$('toast').classList.remove('visible');error();loginError(message);window.scrollTo(0,0);$('accessKey').focus({preventScroll:true});
+      ++state.epoch;++pageSequence;pageAnimation?.cancel();pageAnimation=null;clearInterval(state.expiryTimer);state.connectController?.abort();stopPolling();cancelList();closeReader();clearWaits();if($('deleteDialog').open)$('deleteDialog').close();Object.assign(state,{key:'',page:'inbox',rows:[],query:'',addressFilter:'',searchMode:'address',current:'',cursor:null,deleteTarget:null,offset:0});for(const name of ['inbox','api']){const selected=name==='inbox';$(name+'Page').hidden=!selected;$(name+'Page').inert=!selected;$(name+'Page').style.zIndex='';}updatePageButton();$('app').hidden=true;$('login').hidden=false;$('accessKey').value='';$('accessKey').type='password';$('showKey').setAttribute('aria-pressed','false');$('showKey').setAttribute('aria-label','显示密钥');validating(false);$('searchInput').value='';$('mailList').replaceChildren();$('deleteSubject').textContent='';updateAddress();updateSearch();$('toast').classList.remove('visible');error();loginError(message);window.scrollTo(0,0);$('accessKey').focus({preventScroll:true});
     }
     async function connect(event){
       event.preventDefault();const key=$('accessKey').value.trim();if(!key||connecting||!state.ready||Date.now()<state.retryAt||$('pageContent').inert)return;const epoch=++state.epoch;state.connectController?.abort();const controller=new AbortController();state.connectController=controller;state.key=key;validating(true);loginError();
@@ -592,9 +593,10 @@
     }
     async function renderReader(detail,sequence,signal){
       const hasRemoteImages=[...new DOMParser().parseFromString(detail.html||'','text/html').querySelectorAll('img[src]')].some(image=>/^https?:/.test(safeLink(image.getAttribute('src'))));
-      const root=$('readerContent');root.innerHTML='<span class="reader-label">标题</span><h2 class="reader-title" id="readerTitle">'+esc(detail.status==='too_large'?'邮件过大，正文未保存':detail.subject||'（无主题）')+'</h2><dl class="reader-meta"><div><dt>发件人</dt><dd>'+(detail.fromName?'<strong>'+esc(detail.fromName)+'</strong>':'')+'<span class="reader-email">'+esc(detail.from||'未知发件人')+'</span></dd></div><div><dt>收件人</dt><dd class="reader-recipient">'+esc(detail.address)+'</dd></div><div><dt>收到时间</dt><dd><time datetime="'+esc(new Date(Number(detail.receivedAt)).toISOString())+'">'+esc(new Date(Number(detail.receivedAt)).toLocaleString('zh-CN'))+'</time></dd></div></dl>'+(detail.code?'<div class="reader-code"><div><span class="reader-label">验证码</span><code>'+esc(detail.code)+'</code></div><button class="round-button" id="readerCopyCode" type="button" aria-label="复制验证码">'+icon('copy')+'</button></div>':'')+'<div class="reader-tools"><div class="segmented" role="group" aria-label="邮件显示方式"><button type="button" id="htmlTab" aria-pressed="true">原邮件</button><button type="button" id="textTab" aria-pressed="false">纯文本</button></div>'+(hasRemoteImages?'<button class="image-toggle" id="loadImages" type="button">显示外部图片</button>':'')+'</div><div id="readerBody"></div><div class="reader-links" id="readerLinks"></div><div class="reader-bottom"><button class="pill" id="readerDelete" type="button">'+icon('trash')+'删除邮件</button></div>';
+      const addressButton=(address,label)=>address?'<button class="reader-address" type="button" data-address="'+esc(address)+'" aria-label="复制'+label+'邮箱 '+esc(address)+'" title="复制邮箱地址">'+esc(address)+'</button>':'<span class="reader-address">未知'+label+'</span>';
+      const root=$('readerContent');root.innerHTML='<span class="reader-label">标题</span><h2 class="reader-title" id="readerTitle">'+esc(detail.status==='too_large'?'邮件过大，正文未保存':detail.subject||'（无主题）')+'</h2><dl class="reader-meta"><div><dt>发件人</dt><dd>'+(detail.fromName?'<strong>'+esc(detail.fromName)+'</strong>':'')+addressButton(detail.from,'发件人')+'</dd></div><div><dt>收件人</dt><dd>'+addressButton(detail.address,'收件人')+'</dd></div><div><dt>收到时间</dt><dd><time datetime="'+esc(new Date(Number(detail.receivedAt)).toISOString())+'">'+esc(new Date(Number(detail.receivedAt)).toLocaleString('zh-CN'))+'</time></dd></div></dl>'+(detail.code?'<button class="reader-code" id="readerCopyCode" type="button" aria-label="复制验证码 '+esc(detail.code)+'"><span><span class="reader-label">验证码</span><code>'+esc(detail.code)+'</code></span><span class="round-button" aria-hidden="true">'+icon('copy')+'</span></button>':'')+'<div class="reader-tools"><div class="segmented" role="group" aria-label="邮件显示方式"><button type="button" id="htmlTab" aria-pressed="true">原邮件</button><button type="button" id="textTab" aria-pressed="false">纯文本</button></div>'+(hasRemoteImages?'<button class="image-toggle" id="loadImages" type="button">显示外部图片</button>':'')+'</div><div id="readerBody"></div><div class="reader-links" id="readerLinks"></div><div class="reader-bottom"><button class="pill" id="readerDelete" type="button">'+icon('trash')+'删除邮件</button></div>';
       if(detail.omittedImages>0){const note=document.createElement('p');note.className='reader-meta';note.textContent='部分正文图片超过大小限制或格式不支持，未保存。';$('readerBody').before(note);}
-      $('readerCopyCode')?.addEventListener('click',()=>copy(String(detail.code),'验证码已复制'));$('readerDelete').onclick=()=>askDelete(detail);let source='',asText=!detail.html;
+      $('readerCopyCode')?.addEventListener('click',()=>copy(String(detail.code),'验证码已复制'));for(const button of root.querySelectorAll('[data-address]'))button.onclick=()=>copy(button.dataset.address,'邮箱地址已复制');$('readerDelete').onclick=()=>askDelete(detail);let source='',asText=!detail.html;
       const show=()=>{if(sequence!==state.readerSequence||!$('readerBody'))return;$('htmlTab').setAttribute('aria-pressed',String(!asText));$('textTab').setAttribute('aria-pressed',String(asText));const body=$('readerBody');body.replaceChildren();if(asText){const text=document.createElement('pre');text.className='plain-body';text.textContent=detail.text||(detail.status==='too_large'?'正文未保存。':'没有纯文本正文。');body.append(text);}else{const frame=document.createElement('iframe');frame.className='mail-frame';frame.title='邮件正文';frame.setAttribute('sandbox','allow-popups allow-popups-to-escape-sandbox');frame.setAttribute('referrerpolicy','no-referrer');frame.srcdoc=source;body.append(frame);}};
       $('htmlTab').onclick=()=>{asText=!detail.html;show();};$('textTab').onclick=()=>{asText=true;show();};for(const item of detail.links){const href=safeLink(item.url);if(!/^https?:/.test(href))continue;const link=document.createElement('a');link.href=href;link.textContent=(item.text||new URL(href).hostname)+' ↗';link.title=href;link.target='_blank';link.rel='noopener noreferrer';$('readerLinks').append(link);}
       $('loadImages')?.addEventListener('click',async()=>{const button=$('loadImages');button.disabled=true;const endWait=beginWait({signal});try{state.remoteImages=true;source=await cleanHtml(detail,signal);if(sequence!==state.readerSequence)return;show();button.textContent='已显示外部图片';}catch(failure){if(sequence===state.readerSequence&&failure.name!=='AbortError'){button.disabled=false;toast('图片暂时无法读取。');}}finally{endWait();}});
@@ -614,7 +616,7 @@
     $('retryConnection').onclick=startIntro;
     $('showKey').onclick=()=>{const show=$('accessKey').type==='password';$('accessKey').type=show?'text':'password';$('showKey').setAttribute('aria-pressed',String(show));$('showKey').setAttribute('aria-label',show?'隐藏密钥':'显示密钥');};
     $('copyAddress').onclick=()=>copy(state.current,'邮箱地址已复制');$('randomAddress').onclick=()=>{setCurrent(randomPrefix());changeScope(state.current);};$('useAddress').onclick=()=>changeScope(state.addressFilter?'':state.current);$('logoutButton').onclick=()=>logout();$('homeButton').onclick=event=>{event.preventDefault();switchPage('inbox');};
-    $('inboxButton').onclick=()=>switchPage('inbox');$('apiButton').onclick=()=>switchPage('api');$('copyApiButton').onclick=()=>copy('服务 URL：'+location.origin+'\n接口文档：'+location.origin+'/llms.txt\n请求头：Authorization: Bearer <ACCESS_KEY>\n\n'+$('apiPage').innerText,'接口文档已复制');
+    $('pageButton').onclick=()=>switchPage(state.page==='inbox'?'api':'inbox');$('copyApiButton').onclick=()=>copy('服务 URL：'+location.origin+'\n接口文档：'+location.origin+'/llms.txt\n请求头：Authorization: Bearer <ACCESS_KEY>\n\n'+$('apiPage').innerText,'接口文档已复制');
     $('addressMode').onclick=()=>changeSearchMode('address');$('contentMode').onclick=()=>changeSearchMode('content');$('searchForm').addEventListener('submit',search);$('searchInput').addEventListener('input',()=>{$('searchInput').setCustomValidity('');$('clearSearch').hidden=!$('searchInput').value;});$('clearSearch').onclick=clearSearch;
     $('refreshButton').onclick=refresh;$('refreshButton').querySelector('svg').addEventListener('animationiteration',finishRefresh);reducedMotion.addEventListener('change',finishRefresh);$('retryButton').onclick=refresh;$('loadMoreButton').onclick=()=>{stopPolling();load('more').then(ok=>{if(ok)startPolling();});};
     $('closeReaderButton').onclick=closeReader;$('readerDialog').addEventListener('cancel',event=>{event.preventDefault();closeReader();});$('cancelDeleteButton').onclick=()=>$('deleteDialog').close();$('confirmDeleteButton').onclick=removeMessage;

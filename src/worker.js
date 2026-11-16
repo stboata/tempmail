@@ -48,12 +48,12 @@ function methodNotAllowed(allow) {
 function accessKey(env) {
   if (
     typeof env.ACCESS_KEY !== "string" ||
-    !/^[\x21-\x7e]{32,512}$/.test(env.ACCESS_KEY)
+    !/^[\x21-\x7e]+$/.test(env.ACCESS_KEY)
   )
     throw new HttpError(
       503,
       "NOT_CONFIGURED",
-      "请配置 32 到 512 位、不含空格的随机访问密钥。",
+      "请配置访问密钥，使用不含空格的英文字母、数字或符号。",
     );
   return env.ACCESS_KEY;
 }
@@ -64,7 +64,6 @@ async function authorized(request, env) {
     /^Bearer +([^\s]+)$/i.exec(
       request.headers.get("Authorization") || "",
     )?.[1] || "";
-  if (supplied.length > 512) return false;
   const hash = (value) =>
     crypto.subtle.digest("SHA-256", new TextEncoder().encode(value));
   const [expected, actual] = await Promise.all([hash(key), hash(supplied)]);

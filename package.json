@@ -28,7 +28,7 @@
         "description": "接收临时邮件的域名，例如 example.com。域名须已接入你自己的 Cloudflare 账号。"
       },
       "ACCESS_KEY": {
-        "description": "网页和程序共用的访问密钥，请设置至少 32 个字符的随机值。只作为 Cloudflare Secret 保存，不要提交到 GitHub。"
+        "description": "自定义访问密钥，使用不含空格的英文字母、数字或符号。保存为 Cloudflare Secret，不要提交到 GitHub。"
       },
       "DB": {
         "description": "保存 24 小时内的邮件及正文图片，部署时自动创建。"

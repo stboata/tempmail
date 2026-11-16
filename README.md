@@ -12,9 +12,7 @@
    | 配置 | 内容 |
    | --- | --- |
    | `MAIL_DOMAIN` | 收件域名，例如 `example.com`，不带 `https://` |
-   | `ACCESS_KEY` | 32～512 位、不含空格的随机密钥，保存为 Secret |
-
-   可运行 `openssl rand -hex 32` 生成密钥。
+   | `ACCESS_KEY` | 自定义访问密钥，使用不含空格的英文字母、数字或符号，保存为 Secret |
 
 3. 在域名的 **Email Routing（邮件路由）** 中启用收件，按提示添加 DNS 记录。域名已有邮箱服务时，先确认现有 MX 记录是否冲突。
 4. 将 **Catch-all rule → Send to a Worker** 指向本项目并启用，即可接收 `任意前缀@收件域名`。

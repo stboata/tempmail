@@ -1,0 +1,31 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "temporary-mail",
+  "main": "src/worker.js",
+  "compatibility_date": "2026-11-15",
+  "workers_dev": true,
+  "build": { "command": "npm run build" },
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "run_worker_first": ["/api/*"]
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "temporary-mail",
+      "database_id": "00000000-0000-0000-0000-000000000000",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "ratelimits": [
+    {
+      "name": "AUTH_LIMITER",
+      "namespace_id": "198461001",
+      "simple": { "limit": 5, "period": 60 }
+    }
+  ],
+  "triggers": { "crons": ["*/30 * * * *"] },
+  "vars": { "MAIL_DOMAIN": "example.com" },
+  "observability": { "enabled": true }
+}

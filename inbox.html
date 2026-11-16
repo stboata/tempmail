@@ -1,0 +1,547 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="referrer" content="no-referrer">
+  <title>临时邮箱</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='19' fill='%23191919'/%3E%3Cpath d='M15 44V28q0-11 9-11t9 11v16m0-16q0-11 9-11t9 11v16' fill='none' stroke='white' stroke-width='6' stroke-linecap='round'/%3E%3C/svg%3E">
+  <style>
+    :root {
+      --bg:#f6f6f6; --surface:#fff; --ink:#171717; --muted:#606060;
+      --fill:#ebebeb; --hover:#f2f2f2; --black:#171717;
+      --sans:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+      --mono:ui-monospace,"SFMono-Regular",Consolas,monospace;
+    }
+    * { box-sizing:border-box }
+    html { min-height:100%; scrollbar-gutter:stable }
+    body { margin:0; color:var(--ink); background:var(--bg); font:15px/1.65 var(--sans) }
+    body:has(dialog:modal) { overflow:hidden }
+    button,input { font:inherit; color:inherit }
+    button { border:0; cursor:pointer; touch-action:manipulation; -webkit-tap-highlight-color:transparent }
+    button:disabled { opacity:.45; cursor:wait }
+    button:focus-visible,a:focus-visible { outline:3px solid #777; outline-offset:4px }
+    input { border:0; outline:none; min-width:0 }
+    input::placeholder { color:#6b6b6b; opacity:1 }
+    input[type="search"]::-webkit-search-cancel-button { display:none }
+    svg { width:20px; height:20px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; flex-shrink:0 }
+    [hidden] { display:none!important }
+    .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; clip:rect(0,0,0,0); overflow:hidden; white-space:nowrap }
+    .mail-logo { width:170px; height:75px; color:var(--black); stroke-width:8.5 }
+    #pageContent { opacity:1; transition:opacity .22s ease }
+    body.starting #pageContent { visibility:hidden; opacity:0 }
+    .intro-cover { position:fixed; inset:0; z-index:100; display:grid; place-items:center; background:var(--bg); transition:opacity .22s ease; pointer-events:none }
+    .intro-cover.is-finished { opacity:0 }
+    .intro-logo { width:190px; height:82px; transform:translateY(-24px) }
+    .write-dot { opacity:0 }
+    .intro-cover.is-written .write-dot { opacity:1 }
+    .intro-cover.is-waiting .intro-logo { animation:breathe 1.6s ease-in-out infinite }
+    .intro-status { position:absolute; top:calc(50% + 46px); margin:0; color:var(--muted); font-size:13px }
+    .login { min-height:100svh; padding:48px 25px; display:grid; place-items:center }
+    .login-content { width:100%; max-width:400px; text-align:center; transform:translateY(-24px) }
+    .login h1 { font-size:29px; font-weight:600; letter-spacing:3px; margin:15px 0 10px }
+    .login-intro { margin:0 0 37px; color:var(--muted); font-size:15px; letter-spacing:.2px }
+    .key-field { position:relative; isolation:isolate; overflow:hidden; display:flex; align-items:center; gap:7px; padding:7px 7px 7px 23px; background:var(--surface); border-radius:99px; box-shadow:0 7px 32px #00000006; transition:box-shadow .2s }
+    .key-field::before { content:""; position:absolute; inset:0; z-index:-1; background:var(--black); clip-path:circle(0 at calc(100% - 28.5px) 50%); transition:clip-path .58s cubic-bezier(.76,0,.24,1) }
+    .key-field.is-validating::before { clip-path:circle(150% at calc(100% - 28.5px) 50%) }
+    .key-field:focus-within { box-shadow:0 0 0 3px #1717171a,0 7px 32px #00000006 }
+    .key-field input { flex:1; width:0; min-height:44px; background:transparent; font-size:16px; transition:color .18s ease; caret-color:currentColor }
+    .key-field.is-validating input { color:#fff; transition-delay:.3s }
+    .key-field.is-validating .key-eye { visibility:hidden; pointer-events:none }
+    .key-field.is-validating #enterButton:disabled { opacity:1 }
+    .key-field.is-validating #enterButton { background:transparent; transform:none }
+    #enterButton { transition:width .2s ease,opacity .2s ease,transform .2s ease,margin .2s ease; overflow:hidden }
+    .key-field:not(.has-key) #enterButton { width:0; margin-left:-7px; opacity:0; visibility:hidden; pointer-events:none; transform:scale(.6) }
+    .round-button { width:43px; height:43px; padding:0; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; background:var(--fill); flex-shrink:0; transition:background .15s,transform .15s }
+    .round-button:hover { background:#dedede }
+    .round-button.dark { color:#fff; background:var(--black) }
+    .round-button.dark:hover { background:#333; transform:translateX(1px) }
+    .round-button svg { width:18px; height:18px }
+    .key-eye { width:34px; height:40px; color:var(--muted); background:transparent }
+    .key-eye:hover { background:var(--hover) }
+    .login-error { margin:17px 9px 0; color:var(--ink); font-size:13px; line-height:1.8 }
+    .unavailable { min-height:100svh; padding:48px 25px; display:grid; place-items:center; text-align:center }
+    .unavailable-content { max-width:400px; transform:translateY(-24px) }
+    .unavailable .mail-logo { width:128px; height:60px; margin-bottom:13px }
+    .unavailable h1 { font-size:25px; font-weight:600; margin:0 0 12px }
+    .unavailable p { color:var(--muted); font-size:15px; line-height:1.9; margin:0 0 26px }
+    .app { min-height:100svh }
+    .topbar { max-width:1180px; margin:auto; height:92px; padding:0 36px; display:flex; align-items:center; justify-content:space-between }
+    .brand { display:flex; align-items:center; gap:15px; background:transparent; padding:0; text-decoration:none; color:var(--ink) }
+    .brand .mail-logo { width:67px; height:33px }
+    .brand span { font-weight:600; font-size:15px; letter-spacing:1px }
+    .topbar .round-button { background:transparent; color:var(--muted) }
+    .topbar .round-button:hover { background:var(--fill); color:var(--ink) }
+    .workspace { max-width:1040px; margin:auto; padding:20px 30px 65px }
+    .hero { text-align:center; margin:0 0 31px }
+    .hero h1 { font-size:27px; font-weight:600; letter-spacing:.6px; line-height:1.5; margin:0 0 21px }
+    .hero h1:focus { outline:none }
+    .address-tools { display:inline-flex; flex-wrap:wrap; justify-content:center; align-items:center; gap:9px; max-width:100% }
+    #useAddress { width:112px; flex-shrink:0; white-space:nowrap }
+    .address-copy { min-width:0; min-height:44px; display:flex; align-items:center; gap:16px; padding:7px 15px 7px 19px; border:1px solid transparent; border-radius:99px; background:var(--fill); max-width:100%; transition:background .15s,border-color .15s }
+    .address-copy:hover { background:#dedede }
+    .address-tools.is-scoped .address-copy { border-color:var(--black) }
+    .address-copy span { font:500 15px/1.5 var(--mono); overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
+    .address-tools.is-scoped .address-copy span { font-weight:700 }
+    .address-copy svg { width:15px; height:15px }
+    .address-tools>.round-button { width:44px; height:44px; background:transparent; color:var(--muted) }
+    .address-tools>.round-button:hover { background:var(--fill) }
+    .search-options { display:flex; justify-content:center; margin-bottom:12px }
+    .search-options .segmented button { min-width:80px; min-height:40px; font-size:14px }
+    .search-form { display:flex; align-items:center; gap:12px; max-width:700px; min-height:61px; margin:0 auto 36px; padding:7px 8px 7px 24px; border-radius:99px; background:var(--surface); box-shadow:0 8px 26px #00000004; transition:box-shadow .15s }
+    .search-form:focus-within { box-shadow:0 0 0 3px #1717171a,0 8px 26px #00000004 }
+    .search-form>svg { width:21px; height:21px; color:var(--muted) }
+    .search-form input { flex:1; width:0; min-height:44px; font-size:16px; background:transparent }
+    .clear-search { padding:0; width:29px; height:33px; background:transparent; color:var(--muted); border-radius:99px; display:grid; place-items:center }
+    .clear-search svg { width:15px; height:15px }
+    .search-form .round-button { width:45px; height:45px }
+    .message-banner { display:flex; align-items:center; gap:13px; padding:13px 19px; background:var(--fill); border-radius:17px; margin:0 0 18px; font-size:14px }
+    .message-banner span { flex:1 }
+    .message-banner button { background:var(--surface); border-radius:99px; padding:6px 13px; font-size:13px; white-space:nowrap }
+    .inbox-shell { padding:11px; border-radius:27px; background:var(--surface); box-shadow:0 15px 60px #00000003 }
+    .reader-panel { min-width:0 }
+    .reader-empty { display:none; min-height:460px; place-content:center; justify-items:center; gap:16px; color:var(--muted) }
+    .reader-empty svg { width:36px; height:36px; color:#929292 }
+    .reader-empty p { margin:0; font-size:15px }
+    .list-header { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:15px 17px 17px }
+    .list-title { display:flex; align-items:center; gap:9px; margin:0; font-size:16px; font-weight:600 }
+    .count { display:grid; place-items:center; min-width:25px; height:25px; padding:0 7px; border-radius:99px; background:var(--hover); color:var(--muted); font:500 12px var(--mono) }
+    .list-controls { display:flex; align-items:center; gap:3px }
+    .list-controls .round-button { width:44px; height:44px; background:transparent; color:var(--muted) }
+    .list-controls .round-button:hover { background:var(--fill); color:var(--ink) }
+    .list-controls svg { width:17px; height:17px }
+    .mail-list { display:grid; gap:10px }
+    .mail-row { position:relative; display:grid; grid-template-columns:minmax(0,1fr) 148px; align-items:center; gap:17px; padding:19px; border-radius:18px; background:#f4f4f4; transition:background .15s }
+    .mail-row:hover,.mail-row:focus-within { background:#ededed }
+    .mail-row.is-selected { background:#e9e9e9; box-shadow:inset 3px 0 var(--ink) }
+    .row-open { --recipient-inset:10px; display:grid; grid-template-columns:145px minmax(0,1fr); align-items:center; gap:21px; align-self:center; background:transparent; padding:0; min-width:0; text-align:left }
+    .recipient-block,.message-content { min-width:0 }
+    .recipient-tag { display:inline-block; max-width:100%; padding:3px var(--recipient-inset); border-radius:99px; background:var(--fill); color:var(--ink); font:600 13px/1.7 var(--mono); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; vertical-align:middle }
+    .sender { display:block; font-size:13px; font-weight:500; margin-top:7px; text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:var(--muted) }
+    .subject { display:block; font-size:16px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; line-height:1.65 }
+    .snippet { display:block; margin-top:6px; font-size:14px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-weight:400 }
+    .mail-time { display:block; text-align:right; font-size:12px; color:var(--muted); white-space:nowrap; line-height:1.5 }
+    .row-action { display:flex; flex-direction:column; align-items:flex-end; gap:6px; min-width:0; align-self:start }
+    .code-copy { display:flex; align-items:center; justify-content:center; gap:8px; background:transparent; color:var(--ink); padding:8px 10px; min-height:40px; border:1px solid var(--black); border-radius:11px; min-width:0; max-width:100%; transition:background .15s }
+    .code-copy:hover { background:#dedede }
+    .code-copy code { font:600 18px/1.4 var(--mono); letter-spacing:.5px; overflow:hidden; text-overflow:ellipsis }
+    .code-copy svg { width:14px; height:14px; color:var(--muted) }
+    .read-mail { display:flex; align-items:center; justify-content:center; gap:6px; background:transparent; font-size:13px; color:var(--muted); padding:8px 10px; min-height:40px; border:1px solid var(--black); border-radius:11px; white-space:nowrap }
+    .read-mail:hover { color:var(--ink) }
+    .read-mail svg { width:14px; height:14px }
+    .empty { min-height:262px; display:grid; place-content:center; text-align:center; padding:34px 20px; color:var(--muted) }
+    .empty svg { width:36px; height:36px; margin:0 auto 17px; color:#929292; stroke-width:1.8 }
+    .empty h3 { font-size:16px; font-weight:500; color:var(--muted); margin:0 }
+    .empty button { border-radius:99px; padding:9px 15px; background:var(--fill); font-size:13px; margin:16px auto 0 }
+    .more-wrap { text-align:center; padding:17px 12px 13px }
+    .pill { display:inline-flex; align-items:center; justify-content:center; gap:7px; border-radius:99px; background:var(--fill); padding:10px 17px; font-size:14px; font-weight:500; min-height:44px }
+    .pill:hover { background:#dedede }
+    .pill.dark { color:#fff; background:var(--ink) }
+    .pill.dark:hover { background:#333 }
+    .pill svg { width:15px; height:15px }
+    .is-stale { opacity:.7 }
+    dialog { border:0; border-radius:25px; color:var(--ink); background:white; padding:0; width:min(760px,calc(100vw - 32px)); max-height:calc(100svh - 48px); box-shadow:0 28px 100px #0002 }
+    dialog::backdrop { background:#00000040; backdrop-filter:blur(7px) }
+    .reader-top { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:20px 27px 0; color:var(--muted); font:13px var(--mono) }
+    .reader-top .round-button { width:44px; height:44px; background:var(--hover) }
+    .reader-content { padding:17px 28px 27px }
+    .reader-title { font-size:23px; font-weight:600; line-height:1.6; margin:0 0 13px; overflow-wrap:anywhere }
+    .reader-meta { font-size:14px; color:var(--muted); line-height:1.95; overflow-wrap:anywhere }
+    .reader-meta strong { color:var(--ink); font-weight:500 }
+    .reader-code { margin:22px 0; display:flex; justify-content:space-between; align-items:center; gap:15px; background:var(--hover); border-radius:17px; padding:18px 20px }
+    .reader-code code { font:600 28px/1.4 var(--mono); letter-spacing:5px; overflow-wrap:anywhere; min-width:0 }
+    .reader-code .round-button { width:44px; height:44px; background:var(--fill) }
+    .reader-code .round-button svg { width:15px; height:15px }
+    .reader-tools { display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap; margin:23px 0 13px }
+    .segmented { display:inline-flex; border-radius:99px; padding:4px; background:var(--hover) }
+    .segmented button { border-radius:99px; background:transparent; padding:8px 14px; font-size:13px; color:var(--muted) }
+    .segmented button[aria-pressed="true"] { color:var(--ink); background:white; box-shadow:0 2px 9px #00000006 }
+    .image-toggle { background:var(--hover); padding:10px 13px; border-radius:99px; color:var(--muted); font-size:13px }
+    .mail-frame { width:100%; height:min(48svh,460px); min-height:230px; border:0; display:block; border-radius:13px; background:white }
+    .plain-body { font:16px/1.85 var(--sans); white-space:pre-wrap; overflow-wrap:anywhere; margin:0; padding:18px 3px; min-height:180px; max-height:48svh; overflow:auto }
+    .reader-links { display:flex; flex-wrap:wrap; gap:7px; margin-top:13px }
+    .reader-links a { background:var(--hover); padding:8px 12px; border-radius:99px; color:#444; font-size:13px; text-decoration:none; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:100% }
+    .reader-bottom { margin-top:22px; display:flex; align-items:center; justify-content:flex-end }
+    .reader-bottom .pill { background:var(--hover); color:var(--muted) }
+    .confirm-dialog { width:min(390px,calc(100vw - 32px)); padding:28px }
+    .confirm-dialog h2 { font-size:21px; font-weight:600; margin:0 0 12px }
+    .confirm-dialog p { color:var(--muted); font-size:15px; margin:0; overflow-wrap:anywhere }
+    .confirm-actions { display:flex; justify-content:flex-end; gap:9px; margin-top:27px }
+    .wait-dialog { width:100px; height:100px; max-height:none; padding:0; border-radius:26px; overflow:hidden; outline:none; box-shadow:0 16px 65px #00000012 }
+    .wait-dialog::backdrop { background:#0000003d; backdrop-filter:none }
+    .wait-content { display:grid; place-items:center; width:100%; height:100% }
+    .wait-spinner { width:29px; height:29px; color:var(--ink); stroke-width:3; animation:spin .85s linear infinite }
+    .wait-spinner .track { opacity:.12 }
+    .toast { position:fixed; left:50%; bottom:max(27px,env(safe-area-inset-bottom)); transform:translate(-50%,12px); color:white; background:var(--black); border-radius:99px; padding:10px 19px; box-shadow:0 5px 22px #0001; font-size:14px; opacity:0; transition:opacity .18s,transform .18s; pointer-events:none; z-index:1000; max-width:90vw; text-align:center }
+    .toast.visible { opacity:1; transform:translate(-50%,0) }
+    @keyframes spin { to { transform:rotate(360deg) } }
+    @keyframes breathe { 50% { opacity:.35 } }
+    #refreshButton[aria-busy="true"] { background:var(--fill); cursor:progress }
+    #refreshButton[aria-busy="true"] svg { animation:spin .65s linear infinite }
+    @media (min-width:1100px) {
+      .topbar { max-width:1440px; height:84px }
+      .workspace { max-width:1440px; padding:14px 36px 40px }
+      .hero { display:flex; align-items:center; justify-content:space-between; gap:28px; text-align:left; margin-bottom:25px }
+      .hero h1 { font-size:24px; margin:0 }
+      .address-tools { flex-shrink:0; max-width:58% }
+      .search-options { justify-content:flex-start }
+      .search-form { max-width:none; margin-bottom:24px; min-height:57px }
+      .mail-workspace { display:grid; grid-template-columns:minmax(360px,.9fr) minmax(0,1.25fr); gap:20px; align-items:start }
+      .inbox-shell { min-width:0; padding:10px; border-radius:24px }
+      .list-header { padding:8px 12px 14px }
+      .mail-row { grid-template-columns:minmax(0,1fr) 126px; padding:17px 15px; gap:14px }
+      .row-open { grid-template-columns:minmax(0,1fr); gap:9px }
+      .recipient-block { display:flex; align-items:center; gap:10px }
+      .recipient-tag { max-width:60%; font-size:12px }
+      .sender { min-width:0; margin:0; font-size:12px; text-align:left }
+      .message-content { padding-inline-start:var(--recipient-inset) }
+      .subject { font-size:15px }.snippet { margin-top:4px; font-size:13px }
+      .code-copy code { font-size:17px }
+      .reader-panel { display:block; position:sticky; top:24px; min-width:0; min-height:520px; max-height:calc(100svh - 48px); overflow:auto; background:var(--surface); border-radius:24px }
+      .reader-empty { display:grid }
+      #readerDialog { position:static; margin:0; width:100%; max-height:none; box-shadow:none; border-radius:0; overflow:visible }
+      .reader-top { padding:18px 24px 0 }.reader-content { padding:16px 24px 25px }
+      .reader-title { font-size:22px }
+      .mail-frame { height:clamp(280px,calc(100svh - 340px),640px) }
+      .plain-body { max-height:calc(100svh - 340px) }
+    }
+    @media (max-width:1000px) {
+      .workspace { padding:24px 24px 45px }.topbar { padding:0 29px; height:80px }
+      .row-open { grid-template-columns:125px minmax(0,1fr); gap:13px }
+      .mail-row { grid-template-columns:minmax(0,1fr) 140px; gap:11px; padding:18px 15px }
+      .code-copy { gap:6px }.code-copy code { font-size:17px }
+      .hero h1 { font-size:25px }.search-form { max-width:650px }
+    }
+    @media (max-width:720px) {
+      .topbar { height:77px; padding:0 24px }
+      .brand { gap:10px }.brand .mail-logo { width:59px; height:30px }.brand span { font-size:14px }
+      .workspace { padding:24px 17px 35px }.hero { margin-bottom:27px }
+      .hero h1 { font-size:21px; letter-spacing:0; margin-bottom:18px }
+      .address-tools { gap:5px }.address-copy { padding:8px 12px 8px 15px; gap:10px; min-height:44px }.address-copy span { font-size:13px }
+      .address-copy svg { width:15px; height:15px }.address-tools>.round-button { width:44px; height:44px }
+      .search-form { min-height:56px; margin-bottom:27px; padding:6px 6px 6px 18px; gap:10px }
+      .search-form input { font-size:16px; min-height:42px }.key-field input { font-size:16px }.search-form>svg { width:19px; height:19px }.search-form .round-button { width:42px; height:42px }
+      .inbox-shell { border-radius:22px; padding:7px }.list-header { padding:12px 12px 10px }.list-title { font-size:15px }
+      .mail-row { grid-template-columns:minmax(0,1fr) auto; gap:12px; padding:16px 14px; border-radius:15px }
+      .row-open { --recipient-inset:9px; grid-template-columns:minmax(0,1fr); gap:12px; align-items:start; width:100% }
+      .recipient-block { grid-column:1; grid-row:1; display:flex; align-items:center; gap:8px; min-width:0 }
+      .recipient-tag { max-width:100%; padding:2px var(--recipient-inset); font-size:13px }
+      .sender { font-size:13px; margin:0; min-width:0; text-align:left }
+      .message-content { grid-column:1; grid-row:2; padding-inline-start:var(--recipient-inset) }.subject { font-size:15px; line-height:1.65 }.snippet { display:none }
+      .code-copy { gap:6px; width:auto; max-width:132px }.code-copy code { font-size:17px }.read-mail svg { width:16px; height:16px }
+      .message-banner { padding:12px 14px; font-size:13px }.message-banner button { font-size:13px }
+      .reader-top { padding:16px 19px 0; font-size:12px }.reader-content { padding:15px 20px 23px }.reader-title { font-size:21px }
+      .reader-code { padding:15px 17px; margin:19px 0 }.reader-code code { font-size:26px; letter-spacing:4px }.reader-tools { margin-top:20px }
+      .empty { min-height:240px }.empty h3 { font-size:15px }
+    }
+    @media(max-width:520px) { .sender { display:none } }
+    @media(max-width:360px) { .hero h1 { font-size:20px }.workspace { padding-left:12px; padding-right:12px }.mail-row { padding:14px 12px; gap:8px }.row-open { --recipient-inset:7px; gap:10px 6px }.recipient-tag { font-size:12px }.code-copy code { font-size:16px } }
+    @media(prefers-reduced-motion:reduce) { *,*::before,*::after { animation:none!important; transition:none!important; scroll-behavior:auto!important }.write-dot { opacity:1 } }
+  </style>
+</head>
+<body class="starting">
+  <!--
+    单文件前端与 src/worker.js 同源部署，接口以 API.md 为准。
+    密钥仅在页面内存中持有；鉴权、限流和有效期由后台执行。
+    首页检查公共网络可达性；登录后才读取本实例的真实数据。
+  -->
+  <svg aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden" xmlns="http://www.w3.org/2000/svg">
+    <defs><path id="mail-stroke" pathLength="1" d="M15 61C19 54 23 35 29 33C37 30 25 60 29 62C31 64 40 33 49 33C60 33 44 62 51 63C57 64 62 32 72 33C83 34 67 63 78 63C88 64 90 37 105 34C119 30 125 35 119 49C112 65 98 69 94 58C90 46 107 31 118 34C125 37 114 61 125 63C135 65 141 42 145 33C147 29 136 60 144 63C158 69 182 16 176 13C166 7 153 45 160 58C166 70 181 64 188 56"/></defs>
+    <symbol id="mail-wordmark" viewBox="0 0 208 82">
+      <use href="#mail-stroke"/><path d="M147 17h.1"/>
+    </symbol>
+    <symbol id="arrow" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6"/></symbol>
+    <symbol id="copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="13" rx="3"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></symbol>
+    <symbol id="shuffle" viewBox="0 0 24 24"><path d="M3 6h3c5 0 7 12 12 12h3m-4-4 4 4-4 4M3 18h3c2 0 3-2 4-4m4-4c1-2 2-4 4-4h3m-4-4 4 4-4 4"/></symbol>
+    <symbol id="search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></symbol>
+    <symbol id="refresh" viewBox="0 0 24 24"><path d="M20 8a8 8 0 1 0 0 8M20 3v5h-5"/></symbol>
+    <symbol id="close" viewBox="0 0 24 24"><path d="m6 6 12 12M6 18 18 6"/></symbol>
+    <symbol id="trash" viewBox="0 0 24 24"><path d="M4 6h16M9 6V3h6v3M6 6l1 15h10l1-15M10 10v7m4-7v7"/></symbol>
+    <symbol id="logout" viewBox="0 0 24 24"><path d="M10 4H5v16h5m5-12 4 4-4 4M10 12h11"/></symbol>
+    <symbol id="eye" viewBox="0 0 24 24"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="mail" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="4"/><path d="m4 7 8 6 8-6"/></symbol>
+    <symbol id="arrow-up" viewBox="0 0 24 24"><path d="M7 17 17 7M7 7h10v10"/></symbol>
+  </svg>
+
+  <div class="intro-cover" id="introCover" role="status" aria-label="正在打开临时邮箱">
+    <svg class="mail-logo intro-logo" viewBox="0 0 208 82" aria-hidden="true"><path id="introStroke"/><path class="write-dot" d="M147 17h.1"/></svg>
+    <p class="intro-status" id="introStatus" hidden>正在检查网络…</p>
+  </div>
+  <main id="pageContent" inert>
+    <section class="unavailable" id="unavailable" aria-labelledby="unavailableTitle" hidden>
+      <div class="unavailable-content">
+        <svg class="mail-logo" aria-hidden="true"><use href="#mail-wordmark"/></svg>
+        <h1 id="unavailableTitle">暂时无法连接</h1>
+        <p id="unavailableMessage">请检查网络，或切换可用网络后重试。</p>
+        <button class="pill dark" id="retryConnection" type="button">重新连接</button>
+      </div>
+    </section>
+    <section class="login" id="login" aria-labelledby="loginTitle" hidden>
+      <div class="login-content">
+        <svg class="mail-logo" role="img" aria-label="mail"><use href="#mail-wordmark"/></svg>
+        <h1 id="loginTitle">临时邮箱</h1>
+        <p class="login-intro">随用随取，收下一次需要的邮件。</p>
+        <form id="keyForm">
+          <label class="sr-only" for="accessKey">访问密钥</label>
+          <div class="key-field" id="keyField">
+            <input id="accessKey" type="password" placeholder="输入访问密钥" autocomplete="off" spellcheck="false" required aria-describedby="loginError">
+            <button class="round-button key-eye" id="showKey" type="button" aria-label="显示密钥" aria-pressed="false"><svg aria-hidden="true"><use href="#eye"/></svg></button>
+            <button class="round-button dark" id="enterButton" type="submit" aria-label="进入邮箱" aria-hidden="true" tabindex="-1" disabled><svg aria-hidden="true"><use href="#arrow"/></svg></button>
+          </div>
+          <p class="login-error" id="loginError" role="status" hidden></p>
+        </form>
+      </div>
+    </section>
+
+    <section class="app" id="app" hidden aria-label="临时邮箱">
+      <header class="topbar">
+        <a class="brand" href="#" id="homeButton" aria-label="临时邮箱"><svg class="mail-logo" aria-hidden="true"><use href="#mail-wordmark"/></svg><span>临时邮箱</span></a>
+        <button class="round-button" id="logoutButton" type="button" aria-label="退出邮箱" title="退出"><svg aria-hidden="true"><use href="#logout"/></svg></button>
+      </header>
+      <div class="workspace">
+        <section class="hero" aria-labelledby="workspaceTitle">
+          <h1 id="workspaceTitle" tabindex="-1">随用随取，收下每一封来信。</h1>
+          <div class="address-tools">
+            <button class="address-copy" id="copyAddress" type="button" title="复制邮箱地址"><span id="currentAddress"></span><svg aria-hidden="true"><use href="#copy"/></svg></button>
+            <button class="round-button" id="randomAddress" type="button" title="换一个随机地址" aria-label="换一个随机地址"><svg aria-hidden="true"><use href="#shuffle"/></svg></button>
+            <button class="pill" id="useAddress" type="button">使用此邮箱</button>
+          </div>
+        </section>
+        <div class="search-options"><div class="segmented" role="group" aria-label="查询方式"><button id="addressMode" type="button" aria-pressed="true">查邮箱</button><button id="contentMode" type="button" aria-pressed="false">搜邮件</button></div></div>
+        <form class="search-form" id="searchForm" role="search">
+          <svg aria-hidden="true"><use href="#search"/></svg>
+          <label class="sr-only" id="searchLabel" for="searchInput">查询邮箱前缀或完整地址</label>
+          <input id="searchInput" type="search" placeholder="输入邮箱前缀或完整地址" maxlength="320" autocomplete="off" autocapitalize="none" spellcheck="false">
+          <button class="clear-search" id="clearSearch" type="button" aria-label="清除搜索" hidden><svg aria-hidden="true"><use href="#close"/></svg></button>
+          <button class="round-button dark" id="searchButton" type="submit" aria-label="查询邮箱"><svg aria-hidden="true"><use href="#arrow"/></svg></button>
+        </form>
+        <div class="message-banner" id="errorBanner" role="status" hidden><span id="errorMessage"></span><button id="retryButton" type="button">重试</button></div>
+        <div class="mail-workspace">
+        <section class="inbox-shell" aria-labelledby="listTitle">
+          <div class="list-header">
+            <h2 class="list-title" id="listTitle">全部邮件 <span class="count" id="mailCount">0</span></h2>
+            <div class="list-controls">
+              <button class="round-button" id="refreshButton" type="button" title="刷新邮件" aria-label="刷新邮件"><svg aria-hidden="true"><use href="#refresh"/></svg></button>
+            </div>
+          </div>
+          <div class="mail-list" id="mailList" aria-busy="false"></div>
+          <div class="more-wrap" id="moreWrap" hidden><button class="pill" id="loadMoreButton" type="button">更早的邮件</button></div>
+        </section>
+        <aside class="reader-panel" id="readerPanel" aria-label="邮件阅读区">
+          <div class="reader-empty" id="readerEmpty"><svg aria-hidden="true"><use href="#mail"/></svg><p id="readerPrompt">选择一封邮件</p></div>
+          <dialog id="readerDialog" aria-labelledby="readerTitle"><div id="readerView" hidden><div class="reader-top"><span id="readerAddress"></span><button class="round-button" type="button" id="closeReaderButton" aria-label="关闭邮件"><svg aria-hidden="true"><use href="#close"/></svg></button></div><div class="reader-content" id="readerContent"></div></div></dialog>
+        </aside>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <dialog class="confirm-dialog" id="deleteDialog" aria-labelledby="deleteTitle"><h2 id="deleteTitle">删除这封邮件？</h2><p id="deleteSubject"></p><div class="confirm-actions"><button class="pill" id="cancelDeleteButton" type="button">取消</button><button class="pill dark" id="confirmDeleteButton" type="button">删除</button></div></dialog>
+  <dialog class="wait-dialog" id="waitDialog" aria-label="正在处理，请稍候" tabindex="-1"><div class="wait-content" role="status"><span class="sr-only">正在处理，请稍候</span><svg class="wait-spinner" viewBox="0 0 36 36" aria-hidden="true"><circle class="track" cx="18" cy="18" r="14"/><path d="M18 4a14 14 0 0 1 14 14"/></svg></div></dialog>
+  <div class="toast" id="toast" role="status"></div>
+  <noscript><style>.intro-cover{display:none}body.starting #pageContent{visibility:visible;opacity:1}</style><p style="text-align:center;padding:30px">请启用 JavaScript。</p></noscript>
+
+  <script>
+  (()=>{
+    'use strict';
+    const $=id=>document.getElementById(id);
+    const REFRESH_MS=60000;
+    const reducedMotion=matchMedia('(prefers-reduced-motion: reduce)');
+    const desktop=matchMedia('(min-width:1100px)');
+    let connecting=false;
+    const waitTasks=new Set();
+    const state={key:'',ready:false,domain:'',current:'',addressFilter:'',searchMode:'address',offset:0,epoch:0,listSequence:0,readerSequence:0,rows:[],query:'',cursor:null,pageSize:30,polling:false,pollTimer:0,expiryTimer:0,retryAt:0,retryTimer:0,introController:null,listController:null,readerController:null,connectController:null,selectedId:'',detail:null,deleteTarget:null,remoteImages:false,loading:false};
+    const icon=name=>'<svg aria-hidden="true"><use href="#'+name+'"/></svg>';
+    const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    const now=()=>Date.now()+state.offset;
+    const pause=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+    const byTime=(a,b)=>Number(b.receivedAt)-Number(a.receivedAt)||(a.id<b.id?1:a.id>b.id?-1:0);
+    async function checkNetwork(signal){
+      const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),8000),abort=()=>controller.abort();signal.addEventListener('abort',abort,{once:true});if(signal.aborted)controller.abort();
+      try{await Promise.any(['https://www.cloudflare.com/cdn-cgi/trace','https://one.one.one.one/cdn-cgi/trace'].map(url=>fetch(url,{mode:'no-cors',credentials:'omit',cache:'no-store',referrerPolicy:'no-referrer',signal:controller.signal})));}
+      finally{clearTimeout(timer);signal.removeEventListener('abort',abort);controller.abort();}
+    }
+    async function startIntro(){
+      state.introController?.abort();const controller=new AbortController();state.introController=controller;state.ready=false;syncKey();
+      const cover=$('introCover'),stroke=$('introStroke');$('pageContent').inert=true;document.body.classList.add('starting');$('login').hidden=true;$('unavailable').hidden=true;cover.hidden=false;cover.classList.remove('is-written','is-waiting','is-finished');$('introStatus').hidden=true;
+      stroke.setAttribute('d',$('mail-stroke').getAttribute('d'));const length=stroke.getTotalLength();stroke.style.strokeDasharray=String(length);stroke.style.strokeDashoffset=reducedMotion.matches?'0':String(length);
+      const writing=reducedMotion.matches?null:stroke.animate([{strokeDashoffset:length},{strokeDashoffset:0}],{duration:1600,easing:'linear',fill:'forwards'});
+      const written=(writing?.finished||Promise.resolve()).then(async()=>{if(controller.signal.aborted)return;stroke.style.strokeDashoffset='0';cover.classList.add('is-written');if(!reducedMotion.matches)await pause(180);});
+      controller.signal.addEventListener('abort',()=>writing?.cancel(),{once:true});
+      const slowTimer=setTimeout(()=>{cover.classList.add('is-waiting');$('introStatus').hidden=false;},1900);
+      const [network]=await Promise.all([checkNetwork(controller.signal).then(()=>true,()=>false),written.catch(()=>{})]);
+      clearTimeout(slowTimer);if(controller.signal.aborted)return;cover.classList.remove('is-waiting');$('introStatus').hidden=true;
+      state.ready=network;$('login').hidden=!network;$('unavailable').hidden=network;
+      if(!network)$('unavailableMessage').textContent='暂时无法连接 Cloudflare 网络，请检查或切换网络后重试。';
+      document.body.classList.remove('starting');$('pageContent').inert=false;cover.classList.add('is-finished');syncKey();
+      setTimeout(()=>{if(!document.body.classList.contains('starting'))cover.hidden=true;},reducedMotion.matches?0:220);if(!network)$('retryConnection').focus({preventScroll:true});
+    }
+    function syncKey(){
+      const hasKey=Boolean($('accessKey').value.trim());$('keyField').classList.toggle('has-key',hasKey);$('enterButton').disabled=!hasKey||connecting||!state.ready||Date.now()<state.retryAt;$('enterButton').tabIndex=hasKey?0:-1;$('enterButton').setAttribute('aria-hidden',String(!hasKey));
+    }
+    function validating(active){
+      connecting=active;$('keyField').classList.toggle('is-validating',active);$('keyForm').setAttribute('aria-busy',String(active));$('accessKey').readOnly=active;$('showKey').disabled=active;syncKey();
+    }
+    // 主动操作共用一个等待窗口；短请求不闪屏，后台刷新不遮挡阅读。
+    function beginWait({signal,delay=180}={}){
+      const task={ready:false,finish:null};let done=false;waitTasks.add(task);
+      const finish=()=>{if(done)return;done=true;clearTimeout(timer);signal?.removeEventListener('abort',finish);waitTasks.delete(task);if(![...waitTasks].some(item=>item.ready)){$('pageContent').removeAttribute('aria-busy');if($('waitDialog').open)$('waitDialog').close();}};
+      const timer=setTimeout(()=>{if(done)return;task.ready=true;$('pageContent').setAttribute('aria-busy','true');if(!$('waitDialog').open)$('waitDialog').showModal();},delay);
+      task.finish=finish;if(signal?.aborted)finish();else signal?.addEventListener('abort',finish,{once:true});return finish;
+    }
+    function clearWaits(){for(const task of [...waitTasks])task.finish();}
+    function toast(message){$('toast').textContent=message;$('toast').classList.add('visible');clearTimeout(toast.timer);toast.timer=setTimeout(()=>$('toast').classList.remove('visible'),1900);}
+    function error(message=''){$('errorBanner').hidden=!message;$('errorMessage').textContent=message;$('mailList').classList.toggle('is-stale',Boolean(message));}
+    function loginError(message=''){$('loginError').hidden=!message;$('loginError').textContent=message;}
+    async function copy(text,message='已复制'){
+      try{if(navigator.clipboard&&isSecureContext)await navigator.clipboard.writeText(text);else{const input=document.createElement('textarea');input.value=text;input.style.cssText='position:fixed;opacity:0;top:0;left:0';document.body.append(input);input.select();const copied=document.execCommand('copy');input.remove();if(!copied)throw Error('copy');}toast(message);}catch{toast('未能复制，请选中文字复制。');}
+    }
+    function randomPrefix(){const alphabet='abcdefghjkmnpqrstuvwxyz23456789';return Array.from(crypto.getRandomValues(new Uint8Array(8)),n=>alphabet[n%alphabet.length]).join('');}
+    function updateAddress(){const active=Boolean(state.addressFilter);$('currentAddress').textContent=state.current;$('copyAddress').setAttribute('aria-label','复制邮箱 '+state.current);$('useAddress').textContent=active?'查看全部':'使用此邮箱';$('useAddress').setAttribute('aria-label',active?'返回全部邮件':'只查看 '+state.current+' 的邮件');$('useAddress').closest('.address-tools').classList.toggle('is-scoped',active);}
+    function setCurrent(prefix){state.current=prefix+'@'+state.domain;updateAddress();}
+    function updateSearch(){const address=state.searchMode==='address';$('addressMode').setAttribute('aria-pressed',String(address));$('contentMode').setAttribute('aria-pressed',String(!address));$('searchInput').placeholder=address?'输入邮箱前缀或完整地址':state.addressFilter?'搜索此邮箱的邮件内容':'搜索全部邮件内容';$('searchInput').maxLength=address?320:200;$('searchLabel').textContent=address?'查询邮箱前缀或完整地址':$('searchInput').placeholder;$('searchButton').setAttribute('aria-label',address?'查询邮箱':'搜索邮件');$('searchInput').setCustomValidity('');$('clearSearch').hidden=!$('searchInput').value;}
+    function changeSearchMode(mode){if(state.searchMode===mode)return;state.searchMode=mode;$('searchInput').value=mode==='address'?state.addressFilter.split('@')[0]:state.query;updateSearch();if(mode==='address'&&state.query)search();$('searchInput').focus();}
+    function changeScope(address=''){state.searchMode='address';$('searchInput').value=address.split('@')[0];updateSearch();search();}
+    function searchAddress(value){const address=(value.includes('@')?value:value+'@'+state.domain).toLowerCase(),at=address.lastIndexOf('@'),prefix=address.slice(0,at);return at>0&&at<=64&&address.slice(at+1)===state.domain&&/^[a-z0-9.!#$%&'*+/=?^_`{|}~-]+$/.test(prefix)&&!prefix.startsWith('.')&&!prefix.endsWith('.')&&!prefix.includes('..')?address:'';}
+    async function api(path,{method='GET',signal,binary=false}={}){
+      if(location.protocol==='file:')throw Error('当前直接打开了 HTML 文件，请通过本地服务或部署后的网址打开。');
+      const controller=new AbortController();let timeout=false;
+      const abort=()=>controller.abort();if(signal?.aborted)controller.abort();else signal?.addEventListener('abort',abort,{once:true});
+      const timer=setTimeout(()=>{timeout=true;controller.abort();},10000);
+      try{
+        const headers={};if(state.key)headers.Authorization='Bearer '+state.key;
+        const response=await fetch(location.origin+path,{method,headers,signal:controller.signal,cache:'no-store',credentials:'omit',referrerPolicy:'no-referrer'});
+        if(response.ok&&response.status===204)return null;
+        if(response.ok&&binary)return await response.blob();
+        let data;try{data=await response.json();}catch{throw Error(response.status===404?'邮箱服务尚未部署完成，请检查服务地址。':'邮箱服务暂时不可用，请稍后重试。');}
+        if(!response.ok){const failure=Error(response.status===401?'密钥不正确，请重新输入。':response.status===429?'尝试过于频繁，请稍后重试。':data?.error?.message||'邮箱服务暂时不可用，请稍后重试。');failure.status=response.status;failure.retryAfter=Math.min(3600,Math.max(0,Number(response.headers.get('Retry-After'))||0));throw failure;}return data;
+      }catch(failure){if(timeout)throw Error('连接超时，请检查或切换网络后重试。');if(failure instanceof TypeError)throw Error('暂时无法连接邮箱服务，请检查或切换网络后重试。');throw failure;}
+      finally{clearTimeout(timer);signal?.removeEventListener('abort',abort);}
+    }
+    function fail(failure){if(failure.name==='AbortError')return;if(failure.status===401){logout('密钥已失效，请重新输入。');return;}stopPolling();error(failure.message);}
+    function loading(on){state.loading=on;$('mailList').setAttribute('aria-busy',String(on));if(on||reducedMotion.matches)$('refreshButton').setAttribute('aria-busy',String(on));}
+    function finishRefresh(){if(!state.loading)$('refreshButton').setAttribute('aria-busy','false');}
+    function stopPolling(){clearTimeout(state.pollTimer);state.pollTimer=0;state.polling=false;}
+    function cancelList(){state.listSequence++;state.listController?.abort();state.listController=null;loading(false);$('loadMoreButton').disabled=false;}
+    function layoutReader(){
+      const dialog=$('readerDialog');
+      if(dialog.open&&dialog.matches(':modal')===desktop.matches)dialog.close();
+      if(!$('readerView').hidden&&!dialog.open){if(desktop.matches)dialog.show();else dialog.showModal();}
+    }
+    function showReader(){ $('readerView').hidden=false;$('readerEmpty').hidden=true;layoutReader(); }
+    function closeReader(){state.readerSequence++;state.readerController?.abort();state.readerController=null;state.selectedId='';state.detail=null;state.remoteImages=false;if($('readerDialog').open)$('readerDialog').close();$('readerView').hidden=true;$('readerEmpty').hidden=false;$('readerPrompt').textContent='选择一封邮件';$('readerContent').replaceChildren();$('readerAddress').textContent='';$('mailList').querySelector('.is-selected')?.classList.remove('is-selected');}
+    function logout(message=''){
+      ++state.epoch;clearInterval(state.expiryTimer);state.connectController?.abort();stopPolling();cancelList();closeReader();clearWaits();if($('deleteDialog').open)$('deleteDialog').close();Object.assign(state,{key:'',rows:[],query:'',addressFilter:'',searchMode:'address',current:'',cursor:null,deleteTarget:null,offset:0});$('app').hidden=true;$('login').hidden=false;$('accessKey').value='';$('accessKey').type='password';$('showKey').setAttribute('aria-pressed','false');$('showKey').setAttribute('aria-label','显示密钥');validating(false);$('searchInput').value='';$('mailList').replaceChildren();$('deleteSubject').textContent='';updateAddress();updateSearch();$('toast').classList.remove('visible');error();loginError(message);window.scrollTo(0,0);$('accessKey').focus({preventScroll:true});
+    }
+    async function connect(event){
+      event.preventDefault();const key=$('accessKey').value.trim();if(!key||connecting||!state.ready||Date.now()<state.retryAt||$('pageContent').inert)return;const epoch=++state.epoch;state.connectController?.abort();const controller=new AbortController();state.connectController=controller;state.key=key;validating(true);loginError();
+      const endWait=beginWait({signal:controller.signal,delay:reducedMotion.matches?180:640});
+      try{
+        const response=api('/api/status',{signal:controller.signal});
+        const [result]=await Promise.all([response.then(status=>({status}),failure=>({failure})),pause(reducedMotion.matches?0:600)]);
+        if(result.failure)throw result.failure;const status=result.status;
+        if(epoch!==state.epoch)return;if(!status?.domain)throw Error('邮箱域名尚未配置。');state.addressFilter='';state.domain=String(status.domain).toLowerCase();state.offset=Number.isFinite(status.serverTime)?status.serverTime-Date.now():0;
+        endWait();validating(false);$('accessKey').value='';syncKey();$('accessKey').type='password';$('showKey').setAttribute('aria-pressed','false');$('showKey').setAttribute('aria-label','显示密钥');$('login').hidden=true;$('app').hidden=false;setCurrent(randomPrefix());$('workspaceTitle').focus({preventScroll:true});state.expiryTimer=setInterval(pruneExpired,30000);window.scrollTo(0,0);await search();
+      }catch(failure){if(epoch!==state.epoch)return;state.key='';endWait();validating(false);if(failure.name!=='AbortError')loginError(failure.message);if(failure.status===429&&failure.retryAfter>0){state.retryAt=Date.now()+failure.retryAfter*1000;clearTimeout(state.retryTimer);state.retryTimer=setTimeout(()=>{state.retryAt=0;syncKey();loginError();},failure.retryAfter*1000);syncKey();}if(!$('login').hidden)$('accessKey').focus();}
+      finally{endWait();if(state.connectController===controller){state.connectController=null;validating(false);}}
+    }
+    function dateLabel(timestamp){const date=new Date(Number(timestamp));if(Number.isNaN(date.valueOf()))return'';const today=new Date(now()),yesterday=new Date(now()-86400000);const time=date.toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit',hour12:false});if(date.toDateString()===today.toDateString())return time;if(date.toDateString()===yesterday.toDateString())return'昨天 '+time;return date.toLocaleDateString('zh-CN',{month:'numeric',day:'numeric'});}
+    function render(){
+      const root=$('mailList'),title=state.query?'搜索结果 ':state.addressFilter?'当前邮箱 ':'全部邮件 ',count=String(state.rows.length);if($('listTitle').firstChild.textContent!==title)$('listTitle').firstChild.textContent=title;if($('mailCount').textContent!==count)$('mailCount').textContent=count;$('moreWrap').hidden=!state.cursor;
+      if(!state.rows.length){const failed=!$('errorBanner').hidden,message=state.loading?'正在查找邮件…':failed?'暂时无法读取邮件':state.query?'没有匹配的邮件':'还没有邮件';let empty=root.querySelector('.empty');if(!empty){empty=document.createElement('div');empty.className='empty';root.replaceChildren(empty);}const markup=icon('mail')+'<h3>'+message+'</h3>'+(state.query&&!state.loading&&!failed?'<button type="button">清除搜索</button>':'');if(empty._view!==markup){empty.innerHTML=markup;empty._view=markup;empty.querySelector('button')?.addEventListener('click',clearSearch);}return;}
+      root.querySelector('.empty')?.remove();const existing=new Map([...root.children].map(article=>[article.dataset.id,article]));let next=root.firstElementChild;
+      for(const row of state.rows){
+        const id=String(row.id),article=existing.get(id)||document.createElement('article');existing.delete(id);article.className='mail-row';article.classList.toggle('is-selected',id===state.selectedId);article.dataset.id=id;const recipient=String(row.address||'');const prefix=recipient.split('@')[0];const sender=row.fromName||row.from||'未知发件人';const subject=row.status==='too_large'?'邮件过大，正文未保存':row.subject||'（无主题）';const snippet=String(row.preview||'');const code=String(row.code||'');
+        const markup='<button class="row-open" type="button" aria-label="查看 '+esc(recipient)+' 的邮件：'+esc(subject)+'"><span class="recipient-block"><span class="recipient-tag" title="收件邮箱：'+esc(recipient)+'">'+esc(prefix)+'</span><span class="sender" title="'+esc(row.from||sender)+'">'+esc(sender)+'</span></span><span class="message-content"><span class="subject">'+esc(subject)+'</span><span class="snippet">'+esc(snippet)+'</span></span></button><div class="row-action"><time class="mail-time" title="'+esc(new Date(Number(row.receivedAt)).toLocaleString('zh-CN'))+'" datetime="'+esc(new Date(Number(row.receivedAt)).toISOString())+'">'+esc(dateLabel(row.receivedAt))+'</time>'+(code?'<button class="code-copy" type="button" aria-label="复制验证码 '+esc(code)+'" title="复制验证码"><code>'+esc(code)+'</code>'+icon('copy')+'</button>':'<button class="read-mail" type="button" aria-label="打开 '+esc(subject)+'">查看邮件'+icon('arrow-up')+'</button>')+'</div>';
+        if(article._view!==markup){article.innerHTML=markup;article._view=markup;article.querySelector('.row-open').onclick=()=>openMessage(row.id);article.querySelector('.code-copy')?.addEventListener('click',()=>copy(code,'验证码已复制'));article.querySelector('.read-mail')?.addEventListener('click',()=>openMessage(row.id));}if(article!==next)root.insertBefore(article,next);next=article.nextElementSibling;
+      }
+      for(const article of existing.values())article.remove();
+    }
+    async function load(mode='refresh'){
+      cancelList();const sequence=++state.listSequence,epoch=state.epoch;state.listController=new AbortController();const signal=state.listController.signal;loading(true);if(!state.rows.length)render();$('loadMoreButton').disabled=true;
+      try{
+        const target=mode==='refresh'?Math.max(state.pageSize,state.rows.length):state.pageSize,rows=[];let cursor=mode==='more'?state.cursor:null;
+        do{
+          const params=new URLSearchParams({limit:String(Math.min(100,target-rows.length))});if(state.addressFilter)params.set('address',state.addressFilter);if(state.query)params.set('q',state.query);if(cursor)params.set('cursor',cursor);const data=await api('/api/messages?'+params,{signal});
+          if(sequence!==state.listSequence||epoch!==state.epoch)return false;if(!Array.isArray(data.messages))throw Error('暂时无法读取邮件列表。');rows.push(...data.messages.filter(row=>row&&row.id&&row.address&&(!state.addressFilter||String(row.address).toLowerCase()===state.addressFilter)&&Number.isFinite(Number(row.receivedAt))&&Number(row.expiresAt)>now()));cursor=data.nextCursor||null;
+        }while(mode==='refresh'&&cursor&&rows.length<target);
+        if(mode==='more'){const merged=new Map(state.rows.map(row=>[String(row.id),row]));rows.forEach(row=>merged.set(String(row.id),row));state.rows=[...merged.values()];}else state.rows=rows;
+        state.rows.sort(byTime);state.cursor=cursor;error();loading(false);render();return true;
+      }catch(failure){if(sequence===state.listSequence&&epoch===state.epoch){loading(false);fail(failure);if(!state.rows.length)render();}return false;}
+      finally{if(sequence===state.listSequence){loading(false);$('loadMoreButton').disabled=false;}}
+    }
+    async function search(event){
+      event?.preventDefault();const value=$('searchInput').value.trim(),address=state.searchMode==='address'?(value?searchAddress(value):''):state.addressFilter,query=state.searchMode==='content'?value:'';
+      if(value&&state.searchMode==='address'&&!address){$('searchInput').setCustomValidity('请输入当前域名下的有效邮箱前缀或完整地址。');$('searchInput').reportValidity();return;}
+      stopPolling();cancelList();++state.epoch;closeReader();if(state.query!==query||state.addressFilter!==address)state.rows=[];state.query=query;state.addressFilter=address;if(address)state.current=address;updateAddress();updateSearch();state.cursor=null;$('moreWrap').hidden=true;error();const epoch=state.epoch;const ok=await load('replace');if(ok&&epoch===state.epoch)startPolling();
+    }
+    function clearSearch(){$('searchInput').value='';search();$('searchInput').focus();}
+    function refresh(){if(state.loading||$('refreshButton').getAttribute('aria-busy')==='true')return;stopPolling();load().then(ok=>{if(ok)startPolling();});}
+    function schedulePoll(){if(!state.polling)return;state.pollTimer=setTimeout(async()=>{state.pollTimer=0;if(!state.polling)return;const ok=await load();if(ok&&state.polling)schedulePoll();},REFRESH_MS);}
+    function startPolling(){stopPolling();if($('app').hidden||document.hidden||!navigator.onLine)return;state.polling=true;schedulePoll();}
+    function pruneExpired(){if($('app').hidden)return;const old=state.rows.length;state.rows=state.rows.filter(row=>Number(row.expiresAt)>now());if(old!==state.rows.length){render();}if(state.detail&&Number(state.detail.expiresAt)<=now()){closeReader();toast('邮件已到期。');}}
+    function safeLink(value){if(!value)return'';try{const url=new URL(value);return /^(https?:|mailto:)$/.test(url.protocol)?url.href:'';}catch{return'';}}
+    function detailLinks(detail){const found=new Map();const parsed=new DOMParser().parseFromString(detail.html||'','text/html');for(const link of parsed.querySelectorAll('a[href]')){const href=safeLink(link.getAttribute('href'));if(href)found.set(href,(link.textContent||'打开链接').trim());}for(const match of String(detail.text||'').matchAll(/https?:\/\/[^\s<>"'\u3000]+/g)){const href=safeLink(match[0]);if(href&&!found.has(href))found.set(href,new URL(href).hostname);}return[...found].slice(0,8);}
+    function blobData(blob){return new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=reject;reader.readAsDataURL(blob);});}
+    async function cleanHtml(detail,signal){
+      const parsed=new DOMParser().parseFromString(detail.html||'','text/html');parsed.querySelectorAll('script,iframe,frame,frameset,object,embed,link,meta,base,form,input,button,textarea,select,video,audio,source,svg,math').forEach(element=>element.remove());
+      for(const element of parsed.querySelectorAll('*'))for(const attribute of [...element.attributes])if(/^on/i.test(attribute.name)||['srcdoc','srcset','action','formaction','ping','autofocus'].includes(attribute.name.toLowerCase()))element.removeAttribute(attribute.name);
+      for(const link of parsed.querySelectorAll('a')){const href=safeLink(link.getAttribute('href'));if(href){link.setAttribute('href',href);link.setAttribute('target','_blank');link.setAttribute('rel','noopener noreferrer');}else link.removeAttribute('href');}
+      await Promise.all([...parsed.querySelectorAll('img')].map(async image=>{
+        let src=image.getAttribute('src')||'';image.removeAttribute('src');image.setAttribute('referrerpolicy','no-referrer');image.setAttribute('loading','lazy');
+        if(/^cid:/i.test(src)){
+          const rawId=src.slice(4).replace(/^<|>$/g,'');let cid;
+          try{cid=decodeURIComponent(rawId);}catch{cid=rawId;}
+          src=detail.images.find(item=>item.contentId===cid)?.url||'';
+        }
+        if(/^data:image\/(png|jpeg|gif|webp);base64,/i.test(src)){image.setAttribute('src',src);return;}
+        const stored=detail.images.find(item=>item.url===src);
+        if(stored){try{const blob=await api(stored.url,{signal,binary:true});if(!/^image\/(png|jpeg|gif|webp)$/i.test(blob.type))throw Error('image');image.setAttribute('src',await blobData(blob));}catch{image.replaceWith(document.createTextNode(image.alt||'［图片暂时无法读取］'));}return;}
+        const href=safeLink(src);if(state.remoteImages&&/^https?:/.test(href))image.setAttribute('src',href);else image.replaceWith(document.createTextNode(image.alt||'［图片］'));
+      }));
+      const styles='body{margin:0;padding:12px 3px;font:16px/1.85 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;color:#171717;overflow-wrap:anywhere;background:white}img{max-width:100%;height:auto}table{max-width:100%}pre{white-space:pre-wrap}a{color:#171717;text-underline-offset:3px}';
+      return '<!doctype html><html><head><meta charset="utf-8"><meta name="referrer" content="no-referrer"><meta http-equiv="Content-Security-Policy" content="default-src &#39;none&#39;;style-src &#39;unsafe-inline&#39;;img-src data:'+(state.remoteImages?' https: http:':'')+';form-action &#39;none&#39;;base-uri &#39;none&#39;"><style>'+styles+'</style>'+[...parsed.head.querySelectorAll('style')].map(style=>style.outerHTML).join('')+'</head><body>'+parsed.body.innerHTML+'</body></html>';
+    }
+    async function openMessage(id){
+      closeReader();state.selectedId=String(id);[...$('mailList').children].find(row=>row.dataset.id===String(id))?.classList.add('is-selected');$('readerPrompt').textContent='正在读取…';const sequence=++state.readerSequence,epoch=state.epoch;state.readerController=new AbortController();const signal=state.readerController.signal;const endWait=desktop.matches?()=>{}:beginWait({signal});
+      try{const detail=await api('/api/messages/'+encodeURIComponent(id),{signal});if(sequence!==state.readerSequence||epoch!==state.epoch)return;if(!detail||Number(detail.expiresAt)<=now()){const failure=Error('邮件已删除或到期。');failure.status=404;throw failure;}state.detail=detail;await renderReader(detail,sequence,signal);if(sequence!==state.readerSequence||epoch!==state.epoch)return;endWait();showReader();}
+      catch(failure){if(sequence!==state.readerSequence||failure.name==='AbortError')return;if(failure.status===401){fail(failure);return;}endWait();$('readerContent').innerHTML='<h2 class="reader-title" id="readerTitle">'+esc(failure.message)+'</h2>';showReader();if(failure.status===404){state.rows=state.rows.filter(row=>String(row.id)!==String(id));render();}}
+      finally{endWait();}
+    }
+    async function renderReader(detail,sequence,signal){
+      const hasRemoteImages=[...new DOMParser().parseFromString(detail.html||'','text/html').querySelectorAll('img[src]')].some(image=>/^https?:/.test(safeLink(image.getAttribute('src'))));
+      $('readerAddress').textContent=detail.address||'';const root=$('readerContent');root.innerHTML='<h2 class="reader-title" id="readerTitle">'+esc(detail.status==='too_large'?'邮件过大，正文未保存':detail.subject||'（无主题）')+'</h2><div class="reader-meta"><strong>'+esc(detail.fromName||detail.from||'未知发件人')+'</strong> '+esc(detail.fromName?'〈'+(detail.from||'')+'〉':'')+'<br>'+esc(new Date(Number(detail.receivedAt)).toLocaleString('zh-CN'))+'</div>'+(detail.code?'<div class="reader-code"><code>'+esc(detail.code)+'</code><button class="round-button" id="readerCopyCode" type="button" aria-label="复制验证码">'+icon('copy')+'</button></div>':'')+'<div class="reader-tools"><div class="segmented" role="group" aria-label="邮件显示方式"><button type="button" id="htmlTab" aria-pressed="true">原邮件</button><button type="button" id="textTab" aria-pressed="false">纯文本</button></div>'+(hasRemoteImages?'<button class="image-toggle" id="loadImages" type="button">显示外部图片</button>':'')+'</div><div id="readerBody"></div><div class="reader-links" id="readerLinks"></div><div class="reader-bottom"><button class="pill" id="readerDelete" type="button">'+icon('trash')+'删除邮件</button></div>';
+      if(detail.omittedImages>0){const note=document.createElement('p');note.className='reader-meta';note.textContent='部分正文图片超过大小限制或格式不支持，未保存。';$('readerBody').before(note);}
+      $('readerCopyCode')?.addEventListener('click',()=>copy(String(detail.code),'验证码已复制'));$('readerDelete').onclick=()=>askDelete(detail);let source='',asText=!detail.html;
+      const show=()=>{if(sequence!==state.readerSequence||!$('readerBody'))return;$('htmlTab').setAttribute('aria-pressed',String(!asText));$('textTab').setAttribute('aria-pressed',String(asText));const body=$('readerBody');body.replaceChildren();if(asText){const text=document.createElement('pre');text.className='plain-body';text.textContent=detail.text||(detail.status==='too_large'?'正文未保存。':'没有纯文本正文。');body.append(text);}else{const frame=document.createElement('iframe');frame.className='mail-frame';frame.title='邮件正文';frame.setAttribute('sandbox','allow-popups allow-popups-to-escape-sandbox');frame.setAttribute('referrerpolicy','no-referrer');frame.srcdoc=source;body.append(frame);}};
+      $('htmlTab').onclick=()=>{asText=!detail.html;show();};$('textTab').onclick=()=>{asText=true;show();};for(const [href,label] of detailLinks(detail)){const link=document.createElement('a');link.href=href;link.textContent=label+' ↗';link.title=href;link.target='_blank';link.rel='noopener noreferrer';$('readerLinks').append(link);}
+      $('loadImages')?.addEventListener('click',async()=>{const button=$('loadImages');button.disabled=true;const endWait=beginWait({signal});try{state.remoteImages=true;source=await cleanHtml(detail,signal);if(sequence!==state.readerSequence)return;show();button.textContent='已显示外部图片';}catch(failure){if(sequence===state.readerSequence&&failure.name!=='AbortError'){button.disabled=false;toast('图片暂时无法读取。');}}finally{endWait();}});
+      if(detail.html)source=await cleanHtml(detail,signal);if(sequence!==state.readerSequence)return;show();
+    }
+    function askDelete(detail){state.deleteTarget=detail;$('deleteSubject').textContent=detail.subject||'（无主题）';$('confirmDeleteButton').disabled=false;$('deleteDialog').showModal();}
+    async function removeMessage(){
+      const detail=state.deleteTarget;if(!detail||$('confirmDeleteButton').disabled)return;const epoch=state.epoch;$('confirmDeleteButton').disabled=true;const endWait=beginWait();
+      try{await api('/api/messages/'+encodeURIComponent(detail.id),{method:'DELETE'});if(epoch!==state.epoch)return;cancelList();if(state.polling){clearTimeout(state.pollTimer);schedulePoll();}state.rows=state.rows.filter(row=>String(row.id)!==String(detail.id));$('deleteDialog').close();if(String(state.detail?.id)===String(detail.id))closeReader();render();toast('已删除');}
+      catch(failure){if(epoch!==state.epoch)return;if(failure.status===401)fail(failure);else toast(failure.message);}
+      finally{endWait();if(epoch===state.epoch)$('confirmDeleteButton').disabled=false;}
+    }
+    $('keyForm').addEventListener('submit',connect);
+    $('accessKey').addEventListener('input',()=>{syncKey();if(Date.now()>=state.retryAt)loginError();});
+    $('accessKey').addEventListener('change',syncKey);
+    window.addEventListener('pageshow',event=>{syncKey();if(event.persisted){if($('app').hidden)startIntro();else startPolling();}});
+    $('retryConnection').onclick=startIntro;
+    $('showKey').onclick=()=>{const show=$('accessKey').type==='password';$('accessKey').type=show?'text':'password';$('showKey').setAttribute('aria-pressed',String(show));$('showKey').setAttribute('aria-label',show?'隐藏密钥':'显示密钥');};
+    $('copyAddress').onclick=()=>copy(state.current,'邮箱地址已复制');$('randomAddress').onclick=()=>{setCurrent(randomPrefix());changeScope(state.current);};$('useAddress').onclick=()=>changeScope(state.addressFilter?'':state.current);$('logoutButton').onclick=()=>logout();$('homeButton').onclick=event=>{event.preventDefault();changeScope();window.scrollTo({top:0,behavior:'smooth'});};
+    $('addressMode').onclick=()=>changeSearchMode('address');$('contentMode').onclick=()=>changeSearchMode('content');$('searchForm').addEventListener('submit',search);$('searchInput').addEventListener('input',()=>{$('searchInput').setCustomValidity('');$('clearSearch').hidden=!$('searchInput').value;});$('clearSearch').onclick=clearSearch;
+    $('refreshButton').onclick=refresh;$('refreshButton').querySelector('svg').addEventListener('animationiteration',finishRefresh);reducedMotion.addEventListener('change',finishRefresh);$('retryButton').onclick=refresh;$('loadMoreButton').onclick=()=>{stopPolling();load('more').then(ok=>{if(ok)startPolling();});};
+    $('closeReaderButton').onclick=closeReader;$('readerDialog').addEventListener('cancel',event=>{event.preventDefault();closeReader();});$('cancelDeleteButton').onclick=()=>$('deleteDialog').close();$('confirmDeleteButton').onclick=removeMessage;
+    for(const dialog of document.querySelectorAll('dialog:not(#waitDialog)'))dialog.addEventListener('click',event=>{if(event.target!==dialog)return;const box=dialog.getBoundingClientRect();if(event.clientX>=box.left&&event.clientX<=box.right&&event.clientY>=box.top&&event.clientY<=box.bottom)return;if(dialog.id==='readerDialog')closeReader();else dialog.close();});
+    $('waitDialog').addEventListener('cancel',event=>{event.preventDefault();if(connecting)state.connectController?.abort();});
+    document.addEventListener('visibilitychange',()=>{if(document.hidden){stopPolling();cancelList();}else{pruneExpired();startPolling();}});window.addEventListener('offline',()=>{if(!$('app').hidden){stopPolling();cancelList();error('网络已断开。');if(!state.rows.length)render();}});window.addEventListener('online',startPolling);window.addEventListener('pagehide',()=>{stopPolling();cancelList();state.introController?.abort();state.readerController?.abort();state.connectController?.abort();clearWaits();});
+    desktop.addEventListener('change',layoutReader);layoutReader();syncKey();startIntro();
+  })();
+  </script>
+</body>
+</html>

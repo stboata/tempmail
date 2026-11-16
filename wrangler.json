@@ -1,9 +1,10 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "temporary-mail",
+  "name": "tempmail",
   "main": "src/worker.js",
   "compatibility_date": "2026-11-15",
   "workers_dev": true,
+  "keep_vars": true,
   "build": { "command": "npm run build" },
   "assets": {
     "directory": "./dist",
@@ -14,7 +15,6 @@
     {
       "binding": "DB",
       "database_name": "temporary-mail",
-      "database_id": "00000000-0000-0000-0000-000000000000",
       "migrations_dir": "migrations"
     }
   ],
@@ -26,6 +26,5 @@
     }
   ],
   "triggers": { "crons": ["*/30 * * * *"] },
-  "vars": { "MAIL_DOMAIN": "example.com" },
   "observability": { "enabled": true }
 }

@@ -1,2 +1,4 @@
+# 填写收件域名，例如 example.com；不带 https:// 或邮箱前缀。
+MAIL_DOMAIN=""
 # 自定义访问密钥，使用不含空格的英文字母、数字或符号；部署时保存为 Cloudflare Secret。
 ACCESS_KEY=""

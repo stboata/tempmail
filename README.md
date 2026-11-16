@@ -6,17 +6,18 @@
 
 准备 GitHub 账号、Cloudflare 免费账号和已接入 Cloudflare 的域名。运行只需 **一个 Worker + 一个 D1**。
 
-1. 点击 [部署到 Cloudflare](https://deploy.workers.cloudflare.com/?url=https://github.com/stboata/tempmail)，保存代码到自己的 GitHub 账号。
-2. 填写以下配置，部署命令使用 **`npm run deploy`**，自动建表后发布。
+1. 点击 [部署到 Cloudflare](https://deploy.workers.cloudflare.com/?url=https://github.com/stboata/tempmail)，或先 fork，再在 Cloudflare 的 Workers 中导入自己的仓库。
+2. 部署命令使用 **`npm run deploy`**：由 Cloudflare 自动创建并绑定一个 D1，随后自动建表；再次部署沿用已有数据库。无需填写数据库编号。构建命令可留空，部署时会自动构建网页。
+3. 在部署引导中填写以下配置。直接导入 fork 时，在项目的 **设置 → 变量与机密** 中添加；后续部署保留这些配置。
 
    | 配置 | 内容 |
    | --- | --- |
    | `MAIL_DOMAIN` | 收件域名，例如 `example.com`，不带 `https://` |
    | `ACCESS_KEY` | 自定义访问密钥，使用不含空格的英文字母、数字或符号，保存为 Secret |
 
-3. 在域名的 **Email Routing（邮件路由）** 中启用收件，按提示添加 DNS 记录。域名已有邮箱服务时，先确认现有 MX 记录是否冲突。
-4. 将 **Catch-all rule → Send to a Worker** 指向本项目并启用，即可接收 `任意前缀@收件域名`。
-5. 打开 Worker 提供的网址，输入密钥。需要自定义网址时，在 **Settings → Domains & Routes → Add → Custom Domain** 添加，例如 `inbox.example.com`。
+4. 在域名的 **Email Routing（邮件路由）** 中启用收件，按提示添加 DNS 记录。域名已有邮箱服务时，先确认现有 MX 记录是否冲突。
+5. 将 **Catch-all rule → Send to a Worker** 指向本项目并启用，即可接收 `任意前缀@收件域名`。
+6. 打开 Worker 提供的网址，输入密钥。需要自定义网址时，在 **Settings → Domains & Routes → Add → Custom Domain** 添加，例如 `inbox.example.com`。
 
 部署后，从其他邮箱发一封邮件，检查收件、查询、阅读和删除。
 
@@ -47,4 +48,4 @@ npm ci
 cp .dev.vars.example .dev.vars
 ```
 
-在 `.dev.vars` 填写密钥，再运行 `npm run dev`，打开 `http://localhost:8787`。`npm run check` 检查部署打包；互联网收件需要完成域名部署。
+在 `.dev.vars` 填写域名和密钥，再运行 `npm run dev`，打开 `http://localhost:8787`。`npm run check` 检查部署打包；互联网收件需要完成域名部署。

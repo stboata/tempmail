@@ -1,2 +1,2 @@
-# 部署时在 Cloudflare 中填写自己的随机密钥；此示例不是可用密钥。
+# 填写 32～512 位、不含空格的随机密钥；部署时保存为 Cloudflare Secret。
 ACCESS_KEY=""

@@ -245,11 +245,6 @@
   </style>
 </head>
 <body class="starting">
-  <!--
-    单文件前端与 src/worker.js 同源部署，接口以 API.md 为准。
-    密钥仅在页面内存中持有；鉴权、限流和有效期由后台执行。
-    首页检查公共网络可达性；登录后才读取本实例的真实数据。
-  -->
   <svg aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden" xmlns="http://www.w3.org/2000/svg">
     <defs><path id="mail-stroke" pathLength="1" d="M15 61C19 54 23 35 29 33C37 30 25 60 29 62C31 64 40 33 49 33C60 33 44 62 51 63C57 64 62 32 72 33C83 34 67 63 78 63C88 64 90 37 105 34C119 30 125 35 119 49C112 65 98 69 94 58C90 46 107 31 118 34C125 37 114 61 125 63C135 65 141 42 145 33C147 29 136 60 144 63C158 69 182 16 176 13C166 7 153 45 160 58C166 70 181 64 188 56"/></defs>
     <symbol id="mail-wordmark" viewBox="0 0 208 82">
@@ -450,7 +445,7 @@
       }catch(failure){if(epoch!==state.epoch)return;state.key='';endWait();validating(false);if(failure.name!=='AbortError')loginError(failure.message);if(failure.status===429&&failure.retryAfter>0){state.retryAt=Date.now()+failure.retryAfter*1000;clearTimeout(state.retryTimer);state.retryTimer=setTimeout(()=>{state.retryAt=0;syncKey();loginError();},failure.retryAfter*1000);syncKey();}if(!$('login').hidden)$('accessKey').focus();}
       finally{endWait();if(state.connectController===controller){state.connectController=null;validating(false);}}
     }
-    function dateLabel(timestamp){const date=new Date(Number(timestamp));if(Number.isNaN(date.valueOf()))return'';const today=new Date(now()),yesterday=new Date(now()-86400000);const time=date.toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit',hour12:false});if(date.toDateString()===today.toDateString())return time;if(date.toDateString()===yesterday.toDateString())return'昨天 '+time;return date.toLocaleDateString('zh-CN',{month:'numeric',day:'numeric'});}
+    function dateLabel(timestamp){const date=new Date(Number(timestamp));if(Number.isNaN(date.valueOf()))return'';const today=new Date(now()),yesterday=new Date(today);yesterday.setDate(today.getDate()-1);const time=date.toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit',hour12:false});if(date.toDateString()===today.toDateString())return time;if(date.toDateString()===yesterday.toDateString())return'昨天 '+time;return date.toLocaleDateString('zh-CN',{month:'numeric',day:'numeric'});}
     function render(){
       const root=$('mailList'),title=state.query?'搜索结果 ':state.addressFilter?'当前邮箱 ':'全部邮件 ',count=String(state.rows.length);if($('listTitle').firstChild.textContent!==title)$('listTitle').firstChild.textContent=title;if($('mailCount').textContent!==count)$('mailCount').textContent=count;$('moreWrap').hidden=!state.cursor;
       if(!state.rows.length){const failed=!$('errorBanner').hidden,message=state.loading?'正在查找邮件…':failed?'暂时无法读取邮件':state.query?'没有匹配的邮件':'还没有邮件';let empty=root.querySelector('.empty');if(!empty){empty=document.createElement('div');empty.className='empty';root.replaceChildren(empty);}const markup=icon('mail')+'<h3>'+message+'</h3>'+(state.query&&!state.loading&&!failed?'<button type="button">清除搜索</button>':'');if(empty._view!==markup){empty.innerHTML=markup;empty._view=markup;empty.querySelector('button')?.addEventListener('click',clearSearch);}return;}
@@ -523,12 +518,12 @@
       $('loadImages')?.addEventListener('click',async()=>{const button=$('loadImages');button.disabled=true;const endWait=beginWait({signal});try{state.remoteImages=true;source=await cleanHtml(detail,signal);if(sequence!==state.readerSequence)return;show();button.textContent='已显示外部图片';}catch(failure){if(sequence===state.readerSequence&&failure.name!=='AbortError'){button.disabled=false;toast('图片暂时无法读取。');}}finally{endWait();}});
       if(detail.html)source=await cleanHtml(detail,signal);if(sequence!==state.readerSequence)return;show();
     }
-    function askDelete(detail){state.deleteTarget=detail;$('deleteSubject').textContent=detail.subject||'（无主题）';$('confirmDeleteButton').disabled=false;$('deleteDialog').showModal();}
+    function askDelete(detail){state.deleteTarget={id:detail.id,subject:detail.subject};$('deleteSubject').textContent=detail.subject||'（无主题）';$('confirmDeleteButton').disabled=false;$('deleteDialog').showModal();}
     async function removeMessage(){
       const detail=state.deleteTarget;if(!detail||$('confirmDeleteButton').disabled)return;const epoch=state.epoch;$('confirmDeleteButton').disabled=true;const endWait=beginWait();
-      try{await api('/api/messages/'+encodeURIComponent(detail.id),{method:'DELETE'});if(epoch!==state.epoch)return;cancelList();if(state.polling){clearTimeout(state.pollTimer);schedulePoll();}state.rows=state.rows.filter(row=>String(row.id)!==String(detail.id));$('deleteDialog').close();if(String(state.detail?.id)===String(detail.id))closeReader();render();toast('已删除');}
-      catch(failure){if(epoch!==state.epoch)return;if(failure.status===401)fail(failure);else toast(failure.message);}
-      finally{endWait();if(epoch===state.epoch)$('confirmDeleteButton').disabled=false;}
+      try{await api('/api/messages/'+encodeURIComponent(detail.id),{method:'DELETE'});if(state.deleteTarget!==detail)return;$('deleteDialog').close();if(epoch!==state.epoch)return;cancelList();if(state.polling){clearTimeout(state.pollTimer);schedulePoll();}state.rows=state.rows.filter(row=>String(row.id)!==String(detail.id));if(String(state.detail?.id)===String(detail.id))closeReader();render();toast('已删除');}
+      catch(failure){if(epoch!==state.epoch||state.deleteTarget!==detail)return;if(failure.status===401)fail(failure);else toast(failure.message);}
+      finally{endWait();if(state.deleteTarget===detail)$('confirmDeleteButton').disabled=false;}
     }
     $('keyForm').addEventListener('submit',connect);
     $('accessKey').addEventListener('input',()=>{syncKey();if(Date.now()>=state.retryAt)loginError();});

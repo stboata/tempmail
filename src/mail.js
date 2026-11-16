@@ -1,5 +1,6 @@
 import PostalMime, { decodeWords } from "postal-mime";
 import { decodeHTML, decodeHTMLAttribute } from "entities";
+import { ensureDatabase } from "./database.js";
 
 export const RETENTION_MS = 24 * 60 * 60 * 1000;
 export const LIMITS = Object.freeze({
@@ -202,6 +203,7 @@ export async function receive(message, env) {
     message.setReject("Recipient domain is not served here");
     return;
   }
+  await ensureDatabase(env.DB);
   const receivedAt = Date.now(),
     id = crypto.randomUUID(),
     raw = await readRaw(message);

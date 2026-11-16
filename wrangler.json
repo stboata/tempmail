@@ -14,8 +14,7 @@
   "d1_databases": [
     {
       "binding": "DB",
-      "database_name": "temporary-mail",
-      "migrations_dir": "migrations"
+      "database_name": "temporary-mail"
     }
   ],
   "ratelimits": [

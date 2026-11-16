@@ -105,7 +105,7 @@ const { messages } = await mail('/api/messages?' + params);
 | `404` | 邮件或图片已删除、到期或不存在，不反复提交相同结果 |
 | `405` | 请求方法错误，使用 `Allow` 响应头列出的 GET 或 DELETE |
 | `429` | 错误密钥尝试过多，等待 `Retry-After` 指定的秒数并检查密钥 |
-| `503` | 配置、数据库或运行服务不可用；可在本次等待上限内退避重试，不能当成无邮件 |
+| `503` | `NOT_CONFIGURED`、`DOMAIN_NOT_CONFIGURED`、`DATABASE_NOT_BOUND` 表示部署配置缺失，按提示修正；其他服务故障在本次等待上限内退避重试，不能当成无邮件 |
 
 JSON 错误格式为 `{"error":{"code":"...","message":"..."}}`。网络失败、超时和 Cloudflare 自身错误也应算作故障；平台返回的内容未必是 JSON。
 

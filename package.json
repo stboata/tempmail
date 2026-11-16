@@ -9,9 +9,8 @@
   },
   "scripts": {
     "build": "node scripts/build.mjs",
-    "dev": "npm run db:local && wrangler dev",
-    "db:local": "wrangler d1 migrations apply DB --local",
-    "deploy": "wrangler deploy && wrangler d1 migrations apply DB --remote",
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
     "check": "wrangler deploy --dry-run"
   },
   "dependencies": {

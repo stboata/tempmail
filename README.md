@@ -7,7 +7,7 @@
 准备 GitHub 账号、Cloudflare 免费账号和已接入 Cloudflare 的域名。运行只需 **一个 Worker + 一个 D1**。
 
 1. 点击 [部署到 Cloudflare](https://deploy.workers.cloudflare.com/?url=https://github.com/stboata/tempmail)，或先 fork，再在 Cloudflare 的 Workers 中导入自己的仓库。
-2. 部署命令使用 **`npm run deploy`**：由 Cloudflare 自动创建并绑定一个 D1，随后自动建表；再次部署沿用已有数据库。无需填写数据库编号。构建命令可留空，部署时会自动构建网页。
+2. 部署命令保留 **`npx wrangler deploy`**（`npm run deploy` 也可）。Cloudflare 自动创建并绑定一个 D1，首次使用时自动建表；再次部署保留已有邮件。无需填写数据库编号或执行 SQL。构建命令可留空，部署时会自动构建网页。
 3. 在部署引导中填写以下配置。直接导入 fork 时，在项目的 **设置 → 变量与机密** 中添加；后续部署保留这些配置。
 
    | 配置 | 内容 |

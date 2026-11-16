@@ -7,6 +7,7 @@ import {
   LIMITS,
   extractLinks,
 } from "./mail.js";
+import { ensureDatabase } from "./database.js";
 
 const uuid = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
 const messagePath = new RegExp(
@@ -149,11 +150,13 @@ async function api(request, env) {
       { "WWW-Authenticate": "Bearer" },
     );
   }
+  const domain = mailDomain(env);
+  await ensureDatabase(env.DB);
   if (url.pathname === "/api/status") {
     if (request.method !== "GET") return methodNotAllowed("GET");
     await env.DB.prepare("SELECT id FROM messages LIMIT 1").all();
     return json({
-      domain: mailDomain(env),
+      domain,
       serverTime: now,
       retentionMs: RETENTION_MS,
       limits: LIMITS,
@@ -224,15 +227,20 @@ export default {
           { error: { code: error.code, message: error.message } },
           error.status,
         );
-      console.error(
-        "api_unavailable",
-        error.message === "MAIL_DOMAIN_NOT_CONFIGURED"
-          ? "domain_not_configured"
-          : "storage_or_runtime_failure",
-      );
+      console.error("api_unavailable", error);
+      const configurationError = {
+        MAIL_DOMAIN_NOT_CONFIGURED: {
+          code: "DOMAIN_NOT_CONFIGURED",
+          message: "请在 Worker 的变量与机密中设置 MAIL_DOMAIN 为收件域名，不带 https:// 或路径。",
+        },
+        DATABASE_NOT_BOUND: {
+          code: "DATABASE_NOT_BOUND",
+          message: "请将 D1 数据库绑定到 Worker，绑定名称为 DB。",
+        },
+      }[error.message];
       return json(
         {
-          error: {
+          error: configurationError || {
             code: "SERVICE_UNAVAILABLE",
             message: "邮箱服务或数据库暂时不可用，请稍后重试。",
           },
@@ -255,6 +263,7 @@ export default {
     }
   },
   async scheduled(_event, env) {
+    await ensureDatabase(env.DB);
     await cleanup(env.DB);
   },
 };

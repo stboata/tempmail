@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="referrer" content="no-referrer">
+  <title>API 接口说明 · 临时邮箱</title>
+  <style>
+    * { box-sizing:border-box }
+    html { scrollbar-gutter:stable }
+    body { margin:0; background:#f6f6f6; color:#171717; font:15px/1.85 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif }
+    a { color:inherit; text-underline-offset:4px }
+    button { font:inherit; cursor:pointer }
+    a:focus-visible,button:focus-visible { outline:3px solid #777; outline-offset:4px }
+    header { max-width:1060px; margin:auto; padding:24px 30px; display:flex; justify-content:space-between; align-items:center; gap:16px }
+    .home { text-decoration:none; font-weight:600; white-space:nowrap }
+    .actions { display:flex; align-items:center; gap:10px }
+    .pill { min-height:44px; padding:9px 17px; border:0; border-radius:99px; background:#ebebeb; color:#171717; text-decoration:none; white-space:nowrap; font-size:14px }
+    .pill:hover { background:#dedede }
+    .dark { background:#171717; color:white }
+    .dark:hover { background:#333 }
+    #copyDocs { width:128px }
+    main { max-width:1000px; margin:8px auto 60px; padding:38px 44px; border-radius:26px; background:white; overflow-wrap:anywhere }
+    h1 { margin:0 0 22px; font-size:30px; line-height:1.4; font-weight:600 }
+    h2 { margin:40px 0 16px; font-size:21px; font-weight:600 }
+    p { margin:16px 0 }
+    ol,ul { padding-left:24px }
+    li { margin:10px 0 }
+    code,pre { font-family:ui-monospace,"SFMono-Regular",Consolas,monospace }
+    :not(pre)>code { padding:3px 6px; border-radius:6px; background:#f0f0f0; font-size:.9em }
+    pre { margin:20px 0; padding:20px; border-radius:16px; overflow:auto; background:#202020; color:#f5f5f5; font-size:13px; line-height:1.8; tab-size:2 }
+    table { width:100%; border-collapse:collapse; margin:20px 0; font-size:14px }
+    th,td { padding:13px 14px; text-align:left; vertical-align:top; border-bottom:1px solid #e8e8e8 }
+    th { background:#f4f4f4; font-weight:600 }
+    .service { margin-bottom:30px; padding:15px 18px; border-radius:14px; background:#f4f4f4 }
+    .service span { display:block; font-size:13px; color:#606060 }
+    .service code { padding:0; background:transparent; word-break:break-all }
+    @media(max-width:650px) {
+      header { padding:18px 18px; gap:10px }.actions { gap:6px }.pill { padding:9px 12px; font-size:13px }
+      main { margin:0 12px 30px; padding:26px 20px; border-radius:20px }h1 { font-size:25px }
+      pre { padding:15px; font-size:12px }th,td { padding:10px 7px; font-size:13px }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <a class="home" href="/">← 临时邮箱</a>
+    <nav class="actions" aria-label="接口文档工具">
+      <a class="pill" href="/llms.txt">纯文本</a>
+      <button class="pill dark" type="button" id="copyDocs">复制给 Agent</button>
+    </nav>
+  </header>
+  <main>
+    <div class="service"><span>服务 URL</span><code id="baseURL">部署后的邮箱网站地址</code></div>
+    <article>{{API_HTML}}</article>
+  </main>
+  <template id="apiSource">{{API_TEXT}}</template>
+  <script>
+    const base = /^https?:$/.test(location.protocol) ? location.origin : '';
+    if (base) document.getElementById('baseURL').textContent = base;
+    const button = document.getElementById('copyDocs');
+    let reset;
+    button.addEventListener('click', async () => {
+      const context = base ? `服务 URL：${base}\n接口文档：${base}/llms.txt\n\n` : '';
+      try {
+        await navigator.clipboard.writeText(context + document.getElementById('apiSource').content.textContent);
+        button.textContent = '已复制';
+      } catch {
+        button.textContent = '请复制纯文本';
+      }
+      clearTimeout(reset);
+      reset = setTimeout(() => { button.textContent = '复制给 Agent'; }, 2000);
+    });
+  </script>
+</body>
+</html>

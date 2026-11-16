@@ -74,6 +74,9 @@
     .brand span { font-weight:600; font-size:15px; letter-spacing:1px }
     .topbar .round-button { background:transparent; color:var(--muted) }
     .topbar .round-button:hover { background:var(--fill); color:var(--ink) }
+    .topbar-actions { display:flex; align-items:center; gap:10px }
+    .api-link { display:inline-flex; align-items:center; justify-content:center; min-width:44px; min-height:43px; border-radius:99px; padding:0 13px; color:var(--muted); font-size:13px; font-weight:600; text-decoration:none }
+    .api-link:hover { background:var(--fill); color:var(--ink) }
     .workspace { max-width:1040px; margin:auto; padding:20px 30px 65px }
     .hero { text-align:center; margin:0 0 31px }
     .hero h1 { font-size:27px; font-weight:600; letter-spacing:.6px; line-height:1.5; margin:0 0 21px }
@@ -298,7 +301,7 @@
     <section class="app" id="app" hidden aria-label="临时邮箱">
       <header class="topbar">
         <a class="brand" href="#" id="homeButton" aria-label="临时邮箱"><svg class="mail-logo" aria-hidden="true"><use href="#mail-wordmark"/></svg><span>临时邮箱</span></a>
-        <button class="round-button" id="logoutButton" type="button" aria-label="退出邮箱" title="退出"><svg aria-hidden="true"><use href="#logout"/></svg></button>
+        <nav class="topbar-actions" aria-label="邮箱工具"><a class="api-link" href="/api-docs.html" target="_blank" rel="noopener" aria-label="API 接口说明（新窗口）">API</a><button class="round-button" id="logoutButton" type="button" aria-label="退出邮箱" title="退出"><svg aria-hidden="true"><use href="#logout"/></svg></button></nav>
       </header>
       <div class="workspace">
         <section class="hero" aria-labelledby="workspaceTitle">

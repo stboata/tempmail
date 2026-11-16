@@ -77,13 +77,16 @@
     .topbar-actions { display:flex; align-items:center; gap:10px }
     .api-link { display:inline-flex; align-items:center; justify-content:center; min-width:44px; min-height:43px; border-radius:99px; padding:0 13px; color:var(--muted); font-size:13px; font-weight:600; text-decoration:none }
     .api-link:hover { background:var(--fill); color:var(--ink) }
+    .api-link[aria-pressed="true"] { background:var(--fill); color:var(--ink) }
     .workspace { max-width:1040px; margin:auto; padding:20px 30px 65px }
+    .page-views { display:grid; isolation:isolate; min-height:calc(100svh - 177px) }
+    .content-view { grid-area:1/1; min-width:0; align-self:start; background:var(--bg) }
     .hero { text-align:center; margin:0 0 31px }
     .hero h1 { font-size:27px; font-weight:600; letter-spacing:.6px; line-height:1.5; margin:0 0 21px }
     .hero h1:focus { outline:none }
-    .address-tools { display:inline-flex; flex-wrap:wrap; justify-content:center; align-items:center; gap:9px; max-width:100% }
-    #useAddress { width:112px; flex-shrink:0; white-space:nowrap }
-    .address-copy { min-width:0; min-height:44px; display:flex; align-items:center; gap:16px; padding:7px 15px 7px 19px; border:1px solid transparent; border-radius:99px; background:var(--fill); max-width:100%; transition:background .15s,border-color .15s }
+    .address-tools { display:grid; grid-template-columns:minmax(0,1fr) 44px minmax(0,1fr); align-items:center; gap:9px; width:100%; max-width:900px; margin:auto }
+    #useAddress { width:112px; max-width:100%; justify-self:start; white-space:nowrap }
+    .address-copy { justify-self:end; min-width:0; min-height:44px; display:flex; align-items:center; gap:16px; padding:7px 15px 7px 19px; border:1px solid transparent; border-radius:99px; background:var(--fill); max-width:100%; transition:background .15s,border-color .15s }
     .address-copy:hover { background:#dedede }
     .address-tools.is-scoped .address-copy { border-color:var(--black) }
     .address-copy span { font:500 15px/1.5 var(--mono); overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
@@ -121,16 +124,18 @@
     .mail-row.is-selected { background:#e9e9e9; box-shadow:inset 3px 0 var(--ink) }
     .row-open { --recipient-inset:10px; display:grid; grid-template-columns:145px minmax(0,1fr); align-items:center; gap:21px; align-self:center; background:transparent; padding:0; min-width:0; text-align:left }
     .recipient-block,.message-content { min-width:0 }
+    .recipient-block { text-align:center }
     .recipient-tag { display:inline-block; max-width:100%; padding:3px var(--recipient-inset); border-radius:99px; background:var(--fill); color:var(--ink); font:600 13px/1.7 var(--mono); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; vertical-align:middle }
     .sender { display:block; font-size:13px; font-weight:500; margin-top:7px; text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:var(--muted) }
     .subject { display:block; font-size:16px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; line-height:1.65 }
     .snippet { display:block; margin-top:6px; font-size:14px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-weight:400 }
     .mail-time { display:block; text-align:right; font-size:12px; color:var(--muted); white-space:nowrap; line-height:1.5 }
     .row-action { display:flex; flex-direction:column; align-items:flex-end; gap:6px; min-width:0; align-self:start }
-    .code-copy { display:flex; align-items:center; justify-content:center; gap:8px; background:transparent; color:var(--ink); padding:8px 10px; min-height:40px; border:1px solid var(--black); border-radius:11px; min-width:0; max-width:100%; transition:background .15s }
+    .code-copy { display:grid; grid-template-columns:minmax(0,1fr) 14px; align-items:center; gap:1px 8px; background:transparent; color:var(--ink); padding:7px 9px; min-height:40px; border:1px solid var(--black); border-radius:11px; min-width:0; max-width:100%; transition:background .15s }
     .code-copy:hover { background:#dedede }
-    .code-copy code { font:600 18px/1.4 var(--mono); letter-spacing:.5px; overflow:hidden; text-overflow:ellipsis }
-    .code-copy svg { width:14px; height:14px; color:var(--muted) }
+    .code-caption { grid-column:1; text-align:left; font-size:11px; font-weight:500; line-height:1.4; color:var(--muted) }
+    .code-copy code { grid-column:1; grid-row:2; font:600 16px/1.4 var(--mono); letter-spacing:.15px; overflow:hidden; text-overflow:ellipsis }
+    .code-copy svg { grid-column:2; grid-row:1/3; width:14px; height:14px; color:var(--muted) }
     .read-mail { display:flex; align-items:center; justify-content:center; gap:6px; background:transparent; font-size:13px; color:var(--muted); padding:8px 10px; min-height:40px; border:1px solid var(--black); border-radius:11px; white-space:nowrap }
     .read-mail:hover { color:var(--ink) }
     .read-mail svg { width:14px; height:14px }
@@ -147,14 +152,22 @@
     .is-stale { opacity:.7 }
     dialog { border:0; border-radius:25px; color:var(--ink); background:white; padding:0; width:min(760px,calc(100vw - 32px)); max-height:calc(100svh - 48px); box-shadow:0 28px 100px #0002 }
     dialog::backdrop { background:#00000040; backdrop-filter:blur(7px) }
-    .reader-top { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:20px 27px 0; color:var(--muted); font:13px var(--mono) }
+    .reader-top { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:20px 27px 0; color:var(--muted); font-size:13px }
     .reader-top .round-button { width:44px; height:44px; background:var(--hover) }
     .reader-content { padding:17px 28px 27px }
-    .reader-title { font-size:23px; font-weight:600; line-height:1.6; margin:0 0 13px; overflow-wrap:anywhere }
-    .reader-meta { font-size:14px; color:var(--muted); line-height:1.95; overflow-wrap:anywhere }
-    .reader-meta strong { color:var(--ink); font-weight:500 }
+    .reader-label { display:block; color:var(--muted); font-size:12px; font-weight:500; line-height:1.6 }
+    .reader-title { font-size:23px; font-weight:600; line-height:1.6; margin:4px 0 20px; overflow-wrap:anywhere }
+    .reader-meta { font-size:14px; color:var(--muted); line-height:1.8; overflow-wrap:anywhere; margin:0 }
+    dl.reader-meta { display:grid; gap:9px }
+    .reader-meta>div { display:grid; grid-template-columns:64px minmax(0,1fr); gap:12px }
+    .reader-meta dt { font-size:12px; padding-top:2px }
+    .reader-meta dd { margin:0; min-width:0; color:var(--ink) }
+    .reader-meta strong { font-weight:600; margin-right:7px }
+    .reader-email { color:var(--muted); font:12px/1.8 var(--mono) }
+    .reader-recipient { font-family:var(--mono); font-size:12px }
     .reader-code { margin:22px 0; display:flex; justify-content:space-between; align-items:center; gap:15px; background:var(--hover); border-radius:17px; padding:18px 20px }
-    .reader-code code { font:600 28px/1.4 var(--mono); letter-spacing:5px; overflow-wrap:anywhere; min-width:0 }
+    .reader-code>div { min-width:0 }
+    .reader-code code { display:block; font:600 26px/1.5 var(--mono); letter-spacing:2px; overflow-wrap:anywhere; margin-top:3px }
     .reader-code .round-button { width:44px; height:44px; background:var(--fill) }
     .reader-code .round-button svg { width:15px; height:15px }
     .reader-tools { display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap; margin:23px 0 13px }
@@ -168,6 +181,31 @@
     .reader-links a { background:var(--hover); padding:8px 12px; border-radius:99px; color:#444; font-size:13px; text-decoration:none; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:100% }
     .reader-bottom { margin-top:22px; display:flex; align-items:center; justify-content:flex-end }
     .reader-bottom .pill { background:var(--hover); color:var(--muted) }
+    .api-sheet { padding:30px 34px; border-radius:27px; background:var(--surface) }
+    .api-heading { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:24px }
+    .api-heading h1 { margin:0; font-size:26px; font-weight:600 }
+    .api-connection { display:grid; gap:12px; padding:18px 20px; border-radius:17px; background:var(--hover); margin:0 0 28px }
+    .api-connection>div { display:grid; grid-template-columns:76px minmax(0,1fr); gap:14px; align-items:baseline }
+    .api-connection dt { font-size:12px; color:var(--muted) }
+    .api-connection dd { margin:0; overflow-wrap:anywhere; min-width:0 }
+    .api-sheet code,.api-sheet pre { font-family:var(--mono); font-size:13px }
+    .api-sheet h2 { margin:27px 0 12px; font-size:17px; font-weight:600 }
+    .api-endpoints { width:100%; border-spacing:0; table-layout:fixed; font-size:14px }
+    .api-endpoints th,.api-endpoints td { padding:13px 14px; text-align:left; vertical-align:top; overflow-wrap:anywhere }
+    .api-endpoints th { font-size:12px; font-weight:500; color:var(--muted) }
+    .api-endpoints th:first-child { width:63% }
+    .api-endpoints tbody tr:nth-child(odd) { background:var(--hover) }
+    .api-endpoints td:first-child { border-radius:12px 0 0 12px }
+    .api-endpoints td:last-child { border-radius:0 12px 12px 0 }
+    .api-method { display:inline-block; font:600 11px var(--mono); margin-right:8px }
+    .api-params { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px 24px; margin:0; font-size:13px }
+    .api-params>div { display:grid; grid-template-columns:56px minmax(0,1fr); gap:12px }
+    .api-params dt { font-family:var(--mono); font-weight:600 }
+    .api-params dd { margin:0; color:var(--muted) }
+    .api-example { padding:20px; margin:0; border-radius:17px; background:var(--hover); white-space:pre-wrap; overflow-wrap:anywhere; line-height:1.8 }
+    .api-footer { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-top:20px; font-size:12px; color:var(--muted) }
+    .api-footer p { margin:0 }
+    .api-footer a { color:var(--ink); text-underline-offset:3px }
     .confirm-dialog { width:min(390px,calc(100vw - 32px)); padding:28px }
     .confirm-dialog h2 { font-size:21px; font-weight:600; margin:0 0 12px }
     .confirm-dialog p { color:var(--muted); font-size:15px; margin:0; overflow-wrap:anywhere }
@@ -186,22 +224,18 @@
     @media (min-width:1100px) {
       .topbar { max-width:1440px; height:84px }
       .workspace { max-width:1440px; padding:14px 36px 40px }
-      .hero { display:flex; align-items:center; justify-content:space-between; gap:28px; text-align:left; margin-bottom:25px }
-      .hero h1 { font-size:24px; margin:0 }
-      .address-tools { flex-shrink:0; max-width:58% }
+      .hero { margin-bottom:25px }
+      .hero h1 { font-size:24px; margin-bottom:20px }
       .search-options { justify-content:flex-start }
       .search-form { max-width:none; margin-bottom:24px; min-height:57px }
       .mail-workspace { display:grid; grid-template-columns:minmax(360px,.9fr) minmax(0,1.25fr); gap:20px; align-items:start }
       .inbox-shell { min-width:0; padding:10px; border-radius:24px }
       .list-header { padding:8px 12px 14px }
-      .mail-row { grid-template-columns:minmax(0,1fr) 126px; padding:17px 15px; gap:14px }
-      .row-open { grid-template-columns:minmax(0,1fr); gap:9px }
-      .recipient-block { display:flex; align-items:center; gap:10px }
-      .recipient-tag { max-width:60%; font-size:12px }
-      .sender { min-width:0; margin:0; font-size:12px; text-align:left }
-      .message-content { padding-inline-start:var(--recipient-inset) }
+      .mail-row { grid-template-columns:minmax(0,1fr) 140px; padding:17px 15px; gap:14px }
+      .row-open { grid-template-columns:94px minmax(0,1fr); gap:12px }
+      .recipient-tag { font-size:12px }
+      .sender { font-size:12px }
       .subject { font-size:15px }.snippet { margin-top:4px; font-size:13px }
-      .code-copy code { font-size:17px }
       .reader-panel { display:block; position:sticky; top:24px; min-width:0; min-height:520px; max-height:calc(100svh - 48px); overflow:auto; background:var(--surface); border-radius:24px }
       .reader-empty { display:grid }
       #readerDialog { position:static; margin:0; width:100%; max-height:none; box-shadow:none; border-radius:0; overflow:visible }
@@ -214,11 +248,11 @@
       .workspace { padding:24px 24px 45px }.topbar { padding:0 29px; height:80px }
       .row-open { grid-template-columns:125px minmax(0,1fr); gap:13px }
       .mail-row { grid-template-columns:minmax(0,1fr) 140px; gap:11px; padding:18px 15px }
-      .code-copy { gap:6px }.code-copy code { font-size:17px }
+      .code-copy { column-gap:6px }
       .hero h1 { font-size:25px }.search-form { max-width:650px }
     }
     @media (max-width:720px) {
-      .topbar { height:77px; padding:0 24px }
+      .topbar { height:77px; padding:0 17px }
       .brand { gap:10px }.brand .mail-logo { width:59px; height:30px }.brand span { font-size:14px }
       .workspace { padding:24px 17px 35px }.hero { margin-bottom:27px }
       .hero h1 { font-size:21px; letter-spacing:0; margin-bottom:18px }
@@ -233,14 +267,18 @@
       .recipient-tag { max-width:100%; padding:2px var(--recipient-inset); font-size:13px }
       .sender { font-size:13px; margin:0; min-width:0; text-align:left }
       .message-content { grid-column:1; grid-row:2; padding-inline-start:var(--recipient-inset) }.subject { font-size:15px; line-height:1.65 }.snippet { display:none }
-      .code-copy { gap:6px; width:auto; max-width:132px }.code-copy code { font-size:17px }.read-mail svg { width:16px; height:16px }
+      .code-copy { column-gap:6px; width:auto; max-width:132px }.code-copy code { font-size:15px }.read-mail svg { width:16px; height:16px }
       .message-banner { padding:12px 14px; font-size:13px }.message-banner button { font-size:13px }
       .reader-top { padding:16px 19px 0; font-size:12px }.reader-content { padding:15px 20px 23px }.reader-title { font-size:21px }
-      .reader-code { padding:15px 17px; margin:19px 0 }.reader-code code { font-size:26px; letter-spacing:4px }.reader-tools { margin-top:20px }
+      .reader-code { padding:15px 17px; margin:19px 0 }.reader-code code { font-size:23px; letter-spacing:1px }.reader-tools { margin-top:20px }
+      .api-sheet { padding:23px 19px; border-radius:22px }.api-heading { margin-bottom:20px }.api-heading h1 { font-size:23px }.api-heading .pill { font-size:13px; padding:9px 13px }
+      .api-connection { padding:16px 14px }.api-connection>div { grid-template-columns:1fr; gap:3px }
+      .api-endpoints th,.api-endpoints td { padding:12px 9px; font-size:12px }.api-sheet code { font-size:12px }.api-method { display:block; margin:0 0 5px }.api-endpoints th:first-child { width:65% }
+      .api-params { grid-template-columns:1fr; gap:10px }.api-example { padding:16px; font-size:12px }.api-footer { align-items:flex-start; flex-direction:column }
       .empty { min-height:240px }.empty h3 { font-size:15px }
     }
     @media(max-width:520px) { .sender { display:none } }
-    @media(max-width:360px) { .hero h1 { font-size:20px }.workspace { padding-left:12px; padding-right:12px }.mail-row { padding:14px 12px; gap:8px }.row-open { --recipient-inset:7px; gap:10px 6px }.recipient-tag { font-size:12px }.code-copy code { font-size:16px } }
+    @media(max-width:360px) { .hero h1 { font-size:20px }.workspace { padding-left:12px; padding-right:12px }.mail-row { padding:14px 12px; gap:8px }.row-open { --recipient-inset:7px; gap:10px 6px }.recipient-tag { font-size:12px }#useAddress { padding:10px; font-size:13px }.topbar-actions { gap:3px } }
     @media(prefers-reduced-motion:reduce) { *,*::before,*::after { animation:none!important; transition:none!important; scroll-behavior:auto!important }.write-dot { opacity:1 } }
   </style>
 </head>
@@ -296,9 +334,11 @@
     <section class="app" id="app" hidden aria-label="临时邮箱">
       <header class="topbar">
         <a class="brand" href="#" id="homeButton" aria-label="临时邮箱"><svg class="mail-logo" aria-hidden="true"><use href="#mail-wordmark"/></svg><span>临时邮箱</span></a>
-        <nav class="topbar-actions" aria-label="邮箱工具"><a class="api-link" href="/api-docs.html" target="_blank" rel="noopener" aria-label="API 接口说明（新窗口）">API</a><button class="round-button" id="logoutButton" type="button" aria-label="退出邮箱" title="退出"><svg aria-hidden="true"><use href="#logout"/></svg></button></nav>
+        <nav class="topbar-actions" aria-label="邮箱工具"><button class="api-link" id="inboxButton" type="button" aria-pressed="true" aria-controls="inboxPage">邮箱</button><button class="api-link" id="apiButton" type="button" aria-pressed="false" aria-controls="apiPage">API</button><button class="round-button" id="logoutButton" type="button" aria-label="退出邮箱" title="退出"><svg aria-hidden="true"><use href="#logout"/></svg></button></nav>
       </header>
       <div class="workspace">
+        <div class="page-views" id="pageViews">
+        <div class="content-view" id="inboxPage">
         <section class="hero" aria-labelledby="workspaceTitle">
           <h1 id="workspaceTitle" tabindex="-1">随用随取，收下每一封来信。</h1>
           <div class="address-tools">
@@ -329,8 +369,38 @@
         </section>
         <aside class="reader-panel" id="readerPanel" aria-label="邮件阅读区">
           <div class="reader-empty" id="readerEmpty"><svg aria-hidden="true"><use href="#mail"/></svg><p id="readerPrompt">选择一封邮件</p></div>
-          <dialog id="readerDialog" aria-labelledby="readerTitle"><div id="readerView" hidden><div class="reader-top"><span id="readerAddress"></span><button class="round-button" type="button" id="closeReaderButton" aria-label="关闭邮件"><svg aria-hidden="true"><use href="#close"/></svg></button></div><div class="reader-content" id="readerContent"></div></div></dialog>
+          <dialog id="readerDialog" aria-labelledby="readerTitle"><div id="readerView" hidden><div class="reader-top"><span>邮件</span><button class="round-button" type="button" id="closeReaderButton" aria-label="关闭邮件"><svg aria-hidden="true"><use href="#close"/></svg></button></div><div class="reader-content" id="readerContent"></div></div></dialog>
         </aside>
+        </div>
+        </div>
+        <section class="content-view api-sheet" id="apiPage" aria-labelledby="apiTitle" hidden inert>
+          <div class="api-heading"><h1 id="apiTitle">API 接口</h1><button class="pill" id="copyApiButton" type="button">复制给 Agent</button></div>
+          <dl class="api-connection">
+            <div><dt>服务地址</dt><dd><code id="apiBase"></code></dd></div>
+            <div><dt>请求头</dt><dd><code>Authorization: Bearer &lt;ACCESS_KEY&gt;</code></dd></div>
+          </dl>
+          <table class="api-endpoints">
+            <thead><tr><th>接口</th><th>返回内容</th></tr></thead>
+            <tbody>
+              <tr><td><span class="api-method">GET</span><code>/api/status</code></td><td>收件域名、服务端时间、保存期</td></tr>
+              <tr><td><span class="api-method">GET</span><code>/api/messages</code></td><td>邮件列表、验证码、下一页位置</td></tr>
+              <tr><td><span class="api-method">GET</span><code>/api/messages/{id}</code></td><td>正文、验证码、链接、图片信息</td></tr>
+              <tr><td><span class="api-method">GET</span><code>/api/messages/{id}/images/{imageId}</code></td><td>正文图片</td></tr>
+              <tr><td><span class="api-method">DELETE</span><code>/api/messages/{id}</code></td><td>删除邮件和图片；成功返回 204</td></tr>
+            </tbody>
+          </table>
+          <h2>列表参数</h2>
+          <dl class="api-params">
+            <div><dt>address</dt><dd>精确查询完整邮箱；省略查全部</dd></div>
+            <div><dt>q</dt><dd>搜索邮件关键词</dd></div>
+            <div><dt>since</dt><dd>只查此时间之后的邮件，毫秒时间戳</dd></div>
+            <div><dt>limit</dt><dd>每页 1～100 封，默认 30</dd></div>
+            <div><dt>cursor</dt><dd>传回 nextCursor 读取下一页</dd></div>
+          </dl>
+          <h2>调用示例</h2>
+          <pre class="api-example" id="apiExample"></pre>
+          <div class="api-footer"><p>读取不删信，验证成功后再删除。空列表返回 200。</p><a href="/llms.txt" target="_blank" rel="noopener">完整接口文本 ↗</a></div>
+        </section>
         </div>
       </div>
     </section>
@@ -348,9 +418,9 @@
     const REFRESH_MS=60000;
     const reducedMotion=matchMedia('(prefers-reduced-motion: reduce)');
     const desktop=matchMedia('(min-width:1100px)');
-    let connecting=false;
+    let connecting=false,pageAnimation=null,pageSequence=0;
     const waitTasks=new Set();
-    const state={key:'',ready:false,domain:'',current:'',addressFilter:'',searchMode:'address',offset:0,epoch:0,listSequence:0,readerSequence:0,rows:[],query:'',cursor:null,pageSize:30,polling:false,pollTimer:0,expiryTimer:0,retryAt:0,retryTimer:0,introController:null,listController:null,readerController:null,connectController:null,selectedId:'',detail:null,deleteTarget:null,remoteImages:false,loading:false};
+    const state={key:'',ready:false,page:'inbox',domain:'',current:'',addressFilter:'',searchMode:'address',offset:0,epoch:0,listSequence:0,readerSequence:0,rows:[],query:'',cursor:null,pageSize:30,polling:false,pollTimer:0,expiryTimer:0,retryAt:0,retryTimer:0,introController:null,listController:null,readerController:null,connectController:null,selectedId:'',detail:null,deleteTarget:null,remoteImages:false,loading:false};
     const icon=name=>'<svg aria-hidden="true"><use href="#'+name+'"/></svg>';
     const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
     const now=()=>Date.now()+state.offset;
@@ -397,7 +467,7 @@
       try{if(navigator.clipboard&&isSecureContext)await navigator.clipboard.writeText(text);else{const input=document.createElement('textarea');input.value=text;input.style.cssText='position:fixed;opacity:0;top:0;left:0';document.body.append(input);input.select();const copied=document.execCommand('copy');input.remove();if(!copied)throw Error('copy');}toast(message);}catch{toast('未能复制，请选中文字复制。');}
     }
     function randomPrefix(){const alphabet='abcdefghjkmnpqrstuvwxyz23456789';return Array.from(crypto.getRandomValues(new Uint8Array(8)),n=>alphabet[n%alphabet.length]).join('');}
-    function updateAddress(){const active=Boolean(state.addressFilter);$('currentAddress').textContent=state.current;$('copyAddress').setAttribute('aria-label','复制邮箱 '+state.current);$('useAddress').textContent=active?'查看全部':'使用此邮箱';$('useAddress').setAttribute('aria-label',active?'返回全部邮件':'只查看 '+state.current+' 的邮件');$('useAddress').closest('.address-tools').classList.toggle('is-scoped',active);}
+    function updateAddress(){const active=Boolean(state.addressFilter);$('currentAddress').textContent=state.current;$('copyAddress').setAttribute('aria-label','复制邮箱 '+state.current);$('copyAddress').title=state.current;$('useAddress').textContent=active?'查看全部':'使用此邮箱';$('useAddress').setAttribute('aria-label',active?'返回全部邮件':'只查看 '+state.current+' 的邮件');$('useAddress').closest('.address-tools').classList.toggle('is-scoped',active);}
     function setCurrent(prefix){state.current=prefix+'@'+state.domain;updateAddress();}
     function updateSearch(){const address=state.searchMode==='address';$('addressMode').setAttribute('aria-pressed',String(address));$('contentMode').setAttribute('aria-pressed',String(!address));$('searchInput').placeholder=address?'输入邮箱前缀或完整地址':state.addressFilter?'搜索此邮箱的邮件内容':'搜索全部邮件内容';$('searchInput').maxLength=address?320:200;$('searchLabel').textContent=address?'查询邮箱前缀或完整地址':$('searchInput').placeholder;$('searchButton').setAttribute('aria-label',address?'查询邮箱':'搜索邮件');$('searchInput').setCustomValidity('');$('clearSearch').hidden=!$('searchInput').value;}
     function changeSearchMode(mode){if(state.searchMode===mode)return;state.searchMode=mode;$('searchInput').value=mode==='address'?state.addressFilter.split('@')[0]:state.query;updateSearch();if(mode==='address'&&state.query)search();$('searchInput').focus();}
@@ -423,15 +493,28 @@
     function finishRefresh(){if(!state.loading)$('refreshButton').setAttribute('aria-busy','false');}
     function stopPolling(){clearTimeout(state.pollTimer);state.pollTimer=0;state.polling=false;}
     function cancelList(){state.listSequence++;state.listController?.abort();state.listController=null;loading(false);$('loadMoreButton').disabled=false;}
+    async function switchPage(page,animate=true){
+      if(state.page===page)return;const sequence=++pageSequence;pageAnimation?.cancel();
+      const previous=$(state.page+'Page'),next=$(page+'Page');state.page=page;stopPolling();
+      for(const name of ['inbox','api']){const element=$(name+'Page');element.hidden=element!==previous;element.inert=element!==next;element.style.zIndex='';$(name+'Button').setAttribute('aria-pressed',String(name===page));}
+      next.hidden=false;next.style.zIndex='1';layoutReader();
+      if(animate&&!reducedMotion.matches){pageAnimation=next.animate([{clipPath:'circle(0% at 100% 0)'},{clipPath:'circle(150% at 100% 0)'}],{duration:560,easing:'cubic-bezier(.76,0,.24,1)',fill:'both'});await pageAnimation.finished.catch(()=>{});}
+      if(sequence!==pageSequence)return;previous.hidden=true;next.style.zIndex='';pageAnimation?.cancel();pageAnimation=null;if(page==='inbox')startPolling();
+    }
+    function prepareApi(){
+      $('apiBase').textContent=location.origin;
+      $('apiExample').textContent="curl -H 'Authorization: Bearer <ACCESS_KEY>' \\\n  '"+location.origin+'/api/messages?'+new URLSearchParams({address:'task@'+state.domain,limit:'1'})+"'";
+    }
     function layoutReader(){
       const dialog=$('readerDialog');
+      if(state.page!=='inbox'){if(dialog.open)dialog.close();return;}
       if(dialog.open&&dialog.matches(':modal')===desktop.matches)dialog.close();
       if(!$('readerView').hidden&&!dialog.open){if(desktop.matches)dialog.show();else dialog.showModal();}
     }
     function showReader(){ $('readerView').hidden=false;$('readerEmpty').hidden=true;layoutReader(); }
-    function closeReader(){state.readerSequence++;state.readerController?.abort();state.readerController=null;state.selectedId='';state.detail=null;state.remoteImages=false;if($('readerDialog').open)$('readerDialog').close();$('readerView').hidden=true;$('readerEmpty').hidden=false;$('readerPrompt').textContent='选择一封邮件';$('readerContent').replaceChildren();$('readerAddress').textContent='';$('mailList').querySelector('.is-selected')?.classList.remove('is-selected');}
+    function closeReader(){state.readerSequence++;state.readerController?.abort();state.readerController=null;state.selectedId='';state.detail=null;state.remoteImages=false;if($('readerDialog').open)$('readerDialog').close();$('readerView').hidden=true;$('readerEmpty').hidden=false;$('readerPrompt').textContent='选择一封邮件';$('readerContent').replaceChildren();$('mailList').querySelector('.is-selected')?.classList.remove('is-selected');}
     function logout(message=''){
-      ++state.epoch;clearInterval(state.expiryTimer);state.connectController?.abort();stopPolling();cancelList();closeReader();clearWaits();if($('deleteDialog').open)$('deleteDialog').close();Object.assign(state,{key:'',rows:[],query:'',addressFilter:'',searchMode:'address',current:'',cursor:null,deleteTarget:null,offset:0});$('app').hidden=true;$('login').hidden=false;$('accessKey').value='';$('accessKey').type='password';$('showKey').setAttribute('aria-pressed','false');$('showKey').setAttribute('aria-label','显示密钥');validating(false);$('searchInput').value='';$('mailList').replaceChildren();$('deleteSubject').textContent='';updateAddress();updateSearch();$('toast').classList.remove('visible');error();loginError(message);window.scrollTo(0,0);$('accessKey').focus({preventScroll:true});
+      ++state.epoch;++pageSequence;pageAnimation?.cancel();pageAnimation=null;clearInterval(state.expiryTimer);state.connectController?.abort();stopPolling();cancelList();closeReader();clearWaits();if($('deleteDialog').open)$('deleteDialog').close();Object.assign(state,{key:'',page:'inbox',rows:[],query:'',addressFilter:'',searchMode:'address',current:'',cursor:null,deleteTarget:null,offset:0});for(const name of ['inbox','api']){const selected=name==='inbox';$(name+'Page').hidden=!selected;$(name+'Page').inert=!selected;$(name+'Page').style.zIndex='';$(name+'Button').setAttribute('aria-pressed',String(selected));}$('app').hidden=true;$('login').hidden=false;$('accessKey').value='';$('accessKey').type='password';$('showKey').setAttribute('aria-pressed','false');$('showKey').setAttribute('aria-label','显示密钥');validating(false);$('searchInput').value='';$('mailList').replaceChildren();$('deleteSubject').textContent='';updateAddress();updateSearch();$('toast').classList.remove('visible');error();loginError(message);window.scrollTo(0,0);$('accessKey').focus({preventScroll:true});
     }
     async function connect(event){
       event.preventDefault();const key=$('accessKey').value.trim();if(!key||connecting||!state.ready||Date.now()<state.retryAt||$('pageContent').inert)return;const epoch=++state.epoch;state.connectController?.abort();const controller=new AbortController();state.connectController=controller;state.key=key;validating(true);loginError();
@@ -441,7 +524,7 @@
         const [result]=await Promise.all([response.then(status=>({status}),failure=>({failure})),pause(reducedMotion.matches?0:600)]);
         if(result.failure)throw result.failure;const status=result.status;
         if(epoch!==state.epoch)return;if(!status?.domain)throw Error('邮箱域名尚未配置。');state.addressFilter='';state.domain=String(status.domain).toLowerCase();state.offset=Number.isFinite(status.serverTime)?status.serverTime-Date.now():0;
-        endWait();validating(false);$('accessKey').value='';syncKey();$('accessKey').type='password';$('showKey').setAttribute('aria-pressed','false');$('showKey').setAttribute('aria-label','显示密钥');$('login').hidden=true;$('app').hidden=false;setCurrent(randomPrefix());$('workspaceTitle').focus({preventScroll:true});state.expiryTimer=setInterval(pruneExpired,30000);window.scrollTo(0,0);await search();
+        endWait();validating(false);$('accessKey').value='';syncKey();$('accessKey').type='password';$('showKey').setAttribute('aria-pressed','false');$('showKey').setAttribute('aria-label','显示密钥');$('login').hidden=true;$('app').hidden=false;setCurrent(randomPrefix());prepareApi();$('workspaceTitle').focus({preventScroll:true});state.expiryTimer=setInterval(pruneExpired,30000);window.scrollTo(0,0);await search();if(['/api-docs','/api-docs.html'].includes(location.pathname)||location.hash==='#api')switchPage('api',false);
       }catch(failure){if(epoch!==state.epoch)return;state.key='';endWait();validating(false);if(failure.name!=='AbortError')loginError(failure.message);if(failure.status===429&&failure.retryAfter>0){state.retryAt=Date.now()+failure.retryAfter*1000;clearTimeout(state.retryTimer);state.retryTimer=setTimeout(()=>{state.retryAt=0;syncKey();loginError();},failure.retryAfter*1000);syncKey();}if(!$('login').hidden)$('accessKey').focus();}
       finally{endWait();if(state.connectController===controller){state.connectController=null;validating(false);}}
     }
@@ -452,7 +535,7 @@
       root.querySelector('.empty')?.remove();const existing=new Map([...root.children].map(article=>[article.dataset.id,article]));let next=root.firstElementChild;
       for(const row of state.rows){
         const id=String(row.id),article=existing.get(id)||document.createElement('article');existing.delete(id);article.className='mail-row';article.classList.toggle('is-selected',id===state.selectedId);article.dataset.id=id;const recipient=String(row.address||'');const prefix=recipient.split('@')[0];const sender=row.fromName||row.from||'未知发件人';const subject=row.status==='too_large'?'邮件过大，正文未保存':row.subject||'（无主题）';const snippet=String(row.preview||'');const code=String(row.code||'');
-        const markup='<button class="row-open" type="button" aria-label="查看 '+esc(recipient)+' 的邮件：'+esc(subject)+'"><span class="recipient-block"><span class="recipient-tag" title="收件邮箱：'+esc(recipient)+'">'+esc(prefix)+'</span><span class="sender" title="'+esc(row.from||sender)+'">'+esc(sender)+'</span></span><span class="message-content"><span class="subject">'+esc(subject)+'</span><span class="snippet">'+esc(snippet)+'</span></span></button><div class="row-action"><time class="mail-time" title="'+esc(new Date(Number(row.receivedAt)).toLocaleString('zh-CN'))+'" datetime="'+esc(new Date(Number(row.receivedAt)).toISOString())+'">'+esc(dateLabel(row.receivedAt))+'</time>'+(code?'<button class="code-copy" type="button" aria-label="复制验证码 '+esc(code)+'" title="复制验证码"><code>'+esc(code)+'</code>'+icon('copy')+'</button>':'<button class="read-mail" type="button" aria-label="打开 '+esc(subject)+'">查看邮件'+icon('arrow-up')+'</button>')+'</div>';
+        const markup='<button class="row-open" type="button" aria-label="查看 '+esc(recipient)+' 的邮件：'+esc(subject)+'"><span class="recipient-block"><span class="recipient-tag" title="收件邮箱：'+esc(recipient)+'">'+esc(prefix)+'</span><span class="sender" title="'+esc(row.from||sender)+'">'+esc(sender)+'</span></span><span class="message-content"><span class="subject">'+esc(subject)+'</span><span class="snippet">'+esc(snippet)+'</span></span></button><div class="row-action"><time class="mail-time" title="'+esc(new Date(Number(row.receivedAt)).toLocaleString('zh-CN'))+'" datetime="'+esc(new Date(Number(row.receivedAt)).toISOString())+'">'+esc(dateLabel(row.receivedAt))+'</time>'+(code?'<button class="code-copy" type="button" aria-label="复制验证码 '+esc(code)+'" title="复制验证码"><span class="code-caption">验证码</span><code>'+esc(code)+'</code>'+icon('copy')+'</button>':'<button class="read-mail" type="button" aria-label="打开 '+esc(subject)+'">查看邮件'+icon('arrow-up')+'</button>')+'</div>';
         if(article._view!==markup){article.innerHTML=markup;article._view=markup;article.querySelector('.row-open').onclick=()=>openMessage(row.id);article.querySelector('.code-copy')?.addEventListener('click',()=>copy(code,'验证码已复制'));article.querySelector('.read-mail')?.addEventListener('click',()=>openMessage(row.id));}if(article!==next)root.insertBefore(article,next);next=article.nextElementSibling;
       }
       for(const article of existing.values())article.remove();
@@ -478,7 +561,7 @@
     function clearSearch(){$('searchInput').value='';search();$('searchInput').focus();}
     function refresh(){if(state.loading||$('refreshButton').getAttribute('aria-busy')==='true')return;stopPolling();load().then(ok=>{if(ok)startPolling();});}
     function schedulePoll(){if(!state.polling)return;state.pollTimer=setTimeout(async()=>{state.pollTimer=0;if(!state.polling)return;const ok=await load();if(ok&&state.polling)schedulePoll();},REFRESH_MS);}
-    function startPolling(){stopPolling();if($('app').hidden||document.hidden||!navigator.onLine)return;state.polling=true;schedulePoll();}
+    function startPolling(){stopPolling();if($('app').hidden||state.page!=='inbox'||document.hidden||!navigator.onLine)return;state.polling=true;schedulePoll();}
     function pruneExpired(){if($('app').hidden)return;const old=state.rows.length;state.rows=state.rows.filter(row=>Number(row.expiresAt)>now());if(old!==state.rows.length){render();}if(state.detail&&Number(state.detail.expiresAt)<=now()){closeReader();toast('邮件已到期。');}}
     function safeLink(value){if(!value)return'';try{const url=new URL(value);return /^(https?:|mailto:)$/.test(url.protocol)?url.href:'';}catch{return'';}}
     function blobData(blob){return new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=reject;reader.readAsDataURL(blob);});}
@@ -509,7 +592,7 @@
     }
     async function renderReader(detail,sequence,signal){
       const hasRemoteImages=[...new DOMParser().parseFromString(detail.html||'','text/html').querySelectorAll('img[src]')].some(image=>/^https?:/.test(safeLink(image.getAttribute('src'))));
-      $('readerAddress').textContent=detail.address||'';const root=$('readerContent');root.innerHTML='<h2 class="reader-title" id="readerTitle">'+esc(detail.status==='too_large'?'邮件过大，正文未保存':detail.subject||'（无主题）')+'</h2><div class="reader-meta"><strong>'+esc(detail.fromName||detail.from||'未知发件人')+'</strong> '+esc(detail.fromName?'〈'+(detail.from||'')+'〉':'')+'<br>'+esc(new Date(Number(detail.receivedAt)).toLocaleString('zh-CN'))+'</div>'+(detail.code?'<div class="reader-code"><code>'+esc(detail.code)+'</code><button class="round-button" id="readerCopyCode" type="button" aria-label="复制验证码">'+icon('copy')+'</button></div>':'')+'<div class="reader-tools"><div class="segmented" role="group" aria-label="邮件显示方式"><button type="button" id="htmlTab" aria-pressed="true">原邮件</button><button type="button" id="textTab" aria-pressed="false">纯文本</button></div>'+(hasRemoteImages?'<button class="image-toggle" id="loadImages" type="button">显示外部图片</button>':'')+'</div><div id="readerBody"></div><div class="reader-links" id="readerLinks"></div><div class="reader-bottom"><button class="pill" id="readerDelete" type="button">'+icon('trash')+'删除邮件</button></div>';
+      const root=$('readerContent');root.innerHTML='<span class="reader-label">标题</span><h2 class="reader-title" id="readerTitle">'+esc(detail.status==='too_large'?'邮件过大，正文未保存':detail.subject||'（无主题）')+'</h2><dl class="reader-meta"><div><dt>发件人</dt><dd>'+(detail.fromName?'<strong>'+esc(detail.fromName)+'</strong>':'')+'<span class="reader-email">'+esc(detail.from||'未知发件人')+'</span></dd></div><div><dt>收件人</dt><dd class="reader-recipient">'+esc(detail.address)+'</dd></div><div><dt>收到时间</dt><dd><time datetime="'+esc(new Date(Number(detail.receivedAt)).toISOString())+'">'+esc(new Date(Number(detail.receivedAt)).toLocaleString('zh-CN'))+'</time></dd></div></dl>'+(detail.code?'<div class="reader-code"><div><span class="reader-label">验证码</span><code>'+esc(detail.code)+'</code></div><button class="round-button" id="readerCopyCode" type="button" aria-label="复制验证码">'+icon('copy')+'</button></div>':'')+'<div class="reader-tools"><div class="segmented" role="group" aria-label="邮件显示方式"><button type="button" id="htmlTab" aria-pressed="true">原邮件</button><button type="button" id="textTab" aria-pressed="false">纯文本</button></div>'+(hasRemoteImages?'<button class="image-toggle" id="loadImages" type="button">显示外部图片</button>':'')+'</div><div id="readerBody"></div><div class="reader-links" id="readerLinks"></div><div class="reader-bottom"><button class="pill" id="readerDelete" type="button">'+icon('trash')+'删除邮件</button></div>';
       if(detail.omittedImages>0){const note=document.createElement('p');note.className='reader-meta';note.textContent='部分正文图片超过大小限制或格式不支持，未保存。';$('readerBody').before(note);}
       $('readerCopyCode')?.addEventListener('click',()=>copy(String(detail.code),'验证码已复制'));$('readerDelete').onclick=()=>askDelete(detail);let source='',asText=!detail.html;
       const show=()=>{if(sequence!==state.readerSequence||!$('readerBody'))return;$('htmlTab').setAttribute('aria-pressed',String(!asText));$('textTab').setAttribute('aria-pressed',String(asText));const body=$('readerBody');body.replaceChildren();if(asText){const text=document.createElement('pre');text.className='plain-body';text.textContent=detail.text||(detail.status==='too_large'?'正文未保存。':'没有纯文本正文。');body.append(text);}else{const frame=document.createElement('iframe');frame.className='mail-frame';frame.title='邮件正文';frame.setAttribute('sandbox','allow-popups allow-popups-to-escape-sandbox');frame.setAttribute('referrerpolicy','no-referrer');frame.srcdoc=source;body.append(frame);}};
@@ -530,7 +613,8 @@
     window.addEventListener('pageshow',event=>{syncKey();if(event.persisted){if($('app').hidden)startIntro();else startPolling();}});
     $('retryConnection').onclick=startIntro;
     $('showKey').onclick=()=>{const show=$('accessKey').type==='password';$('accessKey').type=show?'text':'password';$('showKey').setAttribute('aria-pressed',String(show));$('showKey').setAttribute('aria-label',show?'隐藏密钥':'显示密钥');};
-    $('copyAddress').onclick=()=>copy(state.current,'邮箱地址已复制');$('randomAddress').onclick=()=>{setCurrent(randomPrefix());changeScope(state.current);};$('useAddress').onclick=()=>changeScope(state.addressFilter?'':state.current);$('logoutButton').onclick=()=>logout();$('homeButton').onclick=event=>{event.preventDefault();changeScope();window.scrollTo({top:0,behavior:'smooth'});};
+    $('copyAddress').onclick=()=>copy(state.current,'邮箱地址已复制');$('randomAddress').onclick=()=>{setCurrent(randomPrefix());changeScope(state.current);};$('useAddress').onclick=()=>changeScope(state.addressFilter?'':state.current);$('logoutButton').onclick=()=>logout();$('homeButton').onclick=event=>{event.preventDefault();switchPage('inbox');};
+    $('inboxButton').onclick=()=>switchPage('inbox');$('apiButton').onclick=()=>switchPage('api');$('copyApiButton').onclick=()=>copy('服务 URL：'+location.origin+'\n接口文档：'+location.origin+'/llms.txt\n请求头：Authorization: Bearer <ACCESS_KEY>\n\n'+$('apiPage').innerText,'接口文档已复制');
     $('addressMode').onclick=()=>changeSearchMode('address');$('contentMode').onclick=()=>changeSearchMode('content');$('searchForm').addEventListener('submit',search);$('searchInput').addEventListener('input',()=>{$('searchInput').setCustomValidity('');$('clearSearch').hidden=!$('searchInput').value;});$('clearSearch').onclick=clearSearch;
     $('refreshButton').onclick=refresh;$('refreshButton').querySelector('svg').addEventListener('animationiteration',finishRefresh);reducedMotion.addEventListener('change',finishRefresh);$('retryButton').onclick=refresh;$('loadMoreButton').onclick=()=>{stopPolling();load('more').then(ok=>{if(ok)startPolling();});};
     $('closeReaderButton').onclick=closeReader;$('readerDialog').addEventListener('cancel',event=>{event.preventDefault();closeReader();});$('cancelDeleteButton').onclick=()=>$('deleteDialog').close();$('confirmDeleteButton').onclick=removeMessage;
